@@ -12,6 +12,11 @@ export const store = createStore({
       }
     };
   },
+  getters: {
+    isAuthorized(state) {
+      return state.user.token ? true : false;
+    }
+  },
   mutations: {
     setUser(state, userData) {
       const { email, username, bio, image, token } = userData;
