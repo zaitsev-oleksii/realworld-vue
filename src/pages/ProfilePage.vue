@@ -80,3 +80,10 @@
     </div>
   </div>
 </template>
+
+<script>
+export default {
+  name: "ProfilePage",
+  setup() {}
+};
+</script>

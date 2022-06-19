@@ -5,23 +5,23 @@
       <ul class="nav navbar-nav pull-xs-right">
         <li class="nav-item">
           <!-- Add "active" class when you're on that page" -->
-          <a class="nav-link active" href="">Home</a>
+          <router-link to="/" class="nav-link active">Home</router-link>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="">
+          <router-link to="/editor" class="nav-link">
             <i class="ion-compose"></i>&nbsp;New Article
-          </a>
+          </router-link>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="">
+          <router-link to="/settings" class="nav-link">
             <i class="ion-gear-a"></i>&nbsp;Settings
-          </a>
+          </router-link>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="">Sign in</a>
+          <router-link to="/login" class="nav-link">Sign in</router-link>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="">Sign up</a>
+          <router-link to="/register" class="nav-link">Sign up</router-link>
         </li>
       </ul>
     </div>
