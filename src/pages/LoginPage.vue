@@ -8,12 +8,13 @@
             <a href="">Have an account?</a>
           </p>
 
-          <form>
+          <form @submit.prevent="handleSubmit">
             <fieldset class="form-group">
               <input
                 class="form-control form-control-lg"
                 type="text"
                 placeholder="Email"
+                v-model="formData.email"
               />
             </fieldset>
             <fieldset class="form-group">
@@ -21,9 +22,10 @@
                 class="form-control form-control-lg"
                 type="password"
                 placeholder="Password"
+                v-model="formData.password"
               />
             </fieldset>
-            <button class="btn btn-lg btn-primary pull-xs-right">
+            <button type="submit" class="btn btn-lg btn-primary pull-xs-right">
               Sign up
             </button>
           </form>
@@ -34,8 +36,34 @@
 </template>
 
 <script>
+import { reactive } from "vue";
+import { useStore } from "vuex";
+import { useRouter } from "vue-router";
+
+import authAPI from "../api/auth";
+
 export default {
   name: "LoginPage",
-  setup() {}
+  setup() {
+    const store = useStore();
+    const router = useRouter();
+
+    const formData = reactive({
+      email: "",
+      password: ""
+    });
+
+    const handleSubmit = async () => {
+      const userData = await authAPI.login(formData);
+
+      store.commit("setUser", userData);
+      router.push({ path: "/" });
+    };
+
+    return {
+      formData,
+      handleSubmit
+    };
+  }
 };
 </script>
