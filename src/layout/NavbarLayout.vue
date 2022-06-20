@@ -7,7 +7,7 @@
           <!-- Add "active" class when you're on that page" -->
           <router-link to="/" class="nav-link active">Home</router-link>
         </li>
-        <template v-if="isLoggedIn">
+        <template v-if="isAuthorized">
           <li class="nav-item">
             <router-link to="/editor" class="nav-link">
               <i class="ion-compose"></i>&nbsp;New Article
@@ -19,7 +19,7 @@
             </router-link>
           </li>
         </template>
-        <template v-if="!isLoggedIn">
+        <template v-if="!isAuthorized">
           <li class="nav-item">
             <router-link to="/login" class="nav-link">Sign in</router-link>
           </li>
@@ -33,15 +33,19 @@
 </template>
 
 <script>
+import { computed } from "vue";
 import { useStore } from "vuex";
 
 export default {
   name: "NavbarLayout",
   setup() {
     const store = useStore();
-    const isLoggedIn = store.getters.isLoggedIn;
 
-    return { isLoggedIn };
+    const isAuthorized = computed(() => store.getters.isAuthorized);
+
+    return {
+      isAuthorized
+    };
   }
 };
 </script>
