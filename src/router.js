@@ -15,7 +15,7 @@ const routes = [
   { path: "/settings", component: SettingsPage },
   { path: "/editor", component: EditorPage },
   { path: "/article/:slug", component: ArticlePage },
-  { path: "/profile", component: ProfilePage }
+  { path: "/profile/:username", component: ProfilePage }
 ];
 
 export const router = createRouter({
