@@ -18,6 +18,11 @@
               <i class="ion-gear-a"></i>&nbsp;Settings
             </router-link>
           </li>
+          <li class="nav-item">
+            <router-link :to="`/profile/${username}`" class="nav-link">
+              {{ username }}
+            </router-link>
+          </li>
         </template>
         <template v-if="!isAuthorized">
           <li class="nav-item">
@@ -41,10 +46,9 @@ export default {
   setup() {
     const store = useStore();
 
-    const isAuthorized = computed(() => store.getters.isAuthorized);
-
     return {
-      isAuthorized
+      isAuthorized: computed(() => store.getters.isAuthorized),
+      username: computed(() => store.state.user.username)
     };
   }
 };
