@@ -10,11 +10,10 @@
             <a href="" class="author">{{ article.author.username }}</a>
             <span class="date">{{ article.createdAt }}</span>
           </div>
-          <button class="btn btn-sm btn-outline-secondary">
-            <i class="ion-plus-round"></i>
-            &nbsp; Follow {{ article.author.username }}
-            <span class="counter">(10)</span>
-          </button>
+          <follow-button
+            :following="article.author.following"
+            :username="article.author.username"
+          />
           &nbsp;&nbsp;
           <button class="btn btn-sm btn-outline-primary">
             <i class="ion-heart"></i>
@@ -42,10 +41,7 @@
             <span class="date">{{ article.createdAt }}</span>
           </div>
 
-          <button class="btn btn-sm btn-outline-secondary">
-            <i class="ion-plus-round"></i>
-            &nbsp; Follow {{ article.author.username }}
-          </button>
+          <follow-button :username="article.author.username" />
           &nbsp;
           <button class="btn btn-sm btn-outline-primary">
             <i class="ion-heart"></i>
@@ -88,12 +84,13 @@ import { useRoute, useRouter } from "vue-router";
 import articlesAPI from "../api/articles";
 import commentsAPI from "../api/comments";
 
+import FollowButton from "../components/FollowButton.vue";
 import CommentForm from "../components/CommentForm.vue";
 import CommentCard from "../components/CommentCard.vue";
 
 export default {
   name: "ArticlePage",
-  components: { CommentForm, CommentCard },
+  components: { FollowButton, CommentForm, CommentCard },
   setup() {
     const store = useStore();
     const router = useRouter();

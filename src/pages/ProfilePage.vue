@@ -5,14 +5,11 @@
         <div class="row">
           <div class="col-xs-12 col-md-10 offset-md-1">
             <img :src="profile.image" class="user-img" />
-            <h4>{{ profile.username }}</h4>
+            <h4>{{ username }}</h4>
             <p>
               {{ profile.bio }}
             </p>
-            <button class="btn btn-sm btn-outline-secondary action-btn">
-              <i class="ion-plus-round"></i>
-              &nbsp; Follow {{ profile.username }}
-            </button>
+            <follow-button :username="username" />
           </div>
         </div>
       </div>
@@ -61,12 +58,14 @@
 </template>
 
 <script>
-import { ref, onMounted } from "vue";
+import { ref, computed, watch, onMounted } from "vue";
 // import { useStore } from "vuex";
 import { useRoute, useRouter } from "vue-router";
 
 import profileAPI from "../api/profile";
 import articlesAPI from "../api/articles";
+
+import FollowButton from "../components/FollowButton.vue";
 import ArticleFeed from "../components/ArticleFeed.vue";
 
 const articlesTabs = {
@@ -76,7 +75,7 @@ const articlesTabs = {
 
 export default {
   name: "ProfilePage",
-  components: { ArticleFeed },
+  components: { FollowButton, ArticleFeed },
   setup() {
     // const store = useStore();
     const route = useRoute();
@@ -96,7 +95,7 @@ export default {
       currentArticlesTab.value = newTab;
     };
 
-    onMounted(async () => {
+    const setProfileData = async () => {
       const profileData = await profileAPI.getProfile(route.params.username);
       if (!profileData) {
         router.push("/");
@@ -113,9 +112,13 @@ export default {
       profile.value = profileData;
       profileArticles.value = profileArticlesData;
       favoritedArticles.value = favoritedArticlesData;
-    });
+    };
+
+    onMounted(setProfileData);
+    watch(() => route.params.username, setProfileData);
 
     return {
+      username: computed(() => route.params.username),
       profile,
       profileArticles,
       favoritedArticles,

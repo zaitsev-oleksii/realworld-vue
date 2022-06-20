@@ -1,9 +1,15 @@
 <template>
   <div class="article-preview">
     <div class="article-meta">
-      <a href="profile.html"><img :src="$props.author.image" /></a>
+      <router-link :to="`/profile/${$props.author.username}`"
+        ><img :src="$props.author.image"
+      /></router-link>
       <div class="info">
-        <a href="" class="author">{{ $props.author.username }}</a>
+        <router-link
+          :to="`/profile/${$props.author.username}`"
+          class="author"
+          >{{ $props.author.username }}</router-link
+        >
         <span class="date">{{ $props.createdAt }}</span>
       </div>
       <button class="btn btn-outline-primary btn-sm pull-xs-right">
