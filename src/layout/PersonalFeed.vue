@@ -21,6 +21,8 @@ export default {
 
     onMounted(async () => {
       const articlesData = await articlesAPI.getArticlesFeed(
+        10,
+        0,
         store.state.user.token
       );
       articles.value = articlesData;
