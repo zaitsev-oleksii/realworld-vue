@@ -1,5 +1,5 @@
 <template>
-  <div class="article-page">
+  <div class="article-page" v-if="article">
     <div class="banner">
       <div class="container">
         <h1>{{ article.title }}</h1>
@@ -11,8 +11,10 @@
             <span class="date">{{ article.createdAt }}</span>
           </div>
           <follow-button
-            :following="article.author.following"
+            v-if="followingAuthor !== null"
             :username="article.author.username"
+            :following="followingAuthor"
+            @click="handleFollow"
           />
           &nbsp;&nbsp;
           <button class="btn btn-sm btn-outline-primary">
@@ -41,7 +43,12 @@
             <span class="date">{{ article.createdAt }}</span>
           </div>
 
-          <follow-button :username="article.author.username" />
+          <follow-button
+            v-if="followingAuthor !== null"
+            :username="article.author.username"
+            :following="followingAuthor"
+            @click="handleFollow"
+          />
           &nbsp;
           <button class="btn btn-sm btn-outline-primary">
             <i class="ion-heart"></i>
@@ -83,6 +90,7 @@ import { useRoute, useRouter } from "vue-router";
 
 import articlesAPI from "../api/articles";
 import commentsAPI from "../api/comments";
+import profileAPI from "../api/profile";
 
 import FollowButton from "../components/FollowButton.vue";
 import CommentForm from "../components/CommentForm.vue";
@@ -96,15 +104,13 @@ export default {
     const router = useRouter();
     const route = useRoute();
 
-    const article = ref({
-      author: { username: "", image: "" },
-      createdAt: "",
-      title: "",
-      favoritesCount: "",
-      body: ""
-    });
+    const isAuthorized = computed(() => store.getters.isAuthorized);
+
+    const article = ref(null);
 
     const comments = ref([]);
+
+    const followingAuthor = ref(null);
 
     onMounted(async () => {
       const articleData = await articlesAPI.getArticle(route.params.slug);
@@ -116,12 +122,34 @@ export default {
 
       article.value = articleData;
       comments.value = commentsData;
+      followingAuthor.value = article.value.author.following;
     });
+
+    const handleFollow = async () => {
+      if (!isAuthorized.value) {
+        router.push({ path: "/login" });
+        return;
+      }
+
+      const profileData = await (!followingAuthor.value
+        ? profileAPI.follow(
+            store.state.user.token,
+            article.value.author.username
+          )
+        : profileAPI.unfollow(
+            store.state.user.token,
+            article.value.author.username
+          ));
+
+      followingAuthor.value = profileData.following;
+    };
 
     return {
       article,
       comments,
-      isAuthorized: computed(() => store.getters.isAuthorized)
+      isAuthorized,
+      followingAuthor,
+      handleFollow
     };
   }
 };
