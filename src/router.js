@@ -14,7 +14,7 @@ const routes = [
   { path: "/register", component: RegisterPage },
   { path: "/settings", component: SettingsPage },
   { path: "/editor", component: EditorPage },
-  { path: "/article", component: ArticlePage },
+  { path: "/article/:slug", component: ArticlePage },
   { path: "/profile", component: ProfilePage }
 ];
 

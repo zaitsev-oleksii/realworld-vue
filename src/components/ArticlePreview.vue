@@ -10,11 +10,11 @@
         <i class="ion-heart"></i> {{ $props.favoritesCount }}
       </button>
     </div>
-    <a href="" class="preview-link">
+    <router-link :to="`/article/${$props.slug}`" class="preview-link">
       <h1>{{ $props.title }}</h1>
       <p>{{ $props.description }}</p>
       <span>Read more...</span>
-    </a>
+    </router-link>
   </div>
 </template>
 
@@ -22,6 +22,7 @@
 export default {
   name: "ArticlePreview",
   props: {
+    slug: String,
     author: Object,
     createdAt: String,
     favoritesCount: Number,

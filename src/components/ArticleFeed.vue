@@ -2,6 +2,7 @@
   <article-preview
     v-for="article in $props.articles"
     :key="article.slug"
+    :slug="article.slug"
     :author="article.author"
     :createdAt="article.createdAt"
     :favoritesCount="article.favoritesCount"
