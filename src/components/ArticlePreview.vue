@@ -2,7 +2,7 @@
   <div class="article-preview">
     <div class="article-meta">
       <router-link :to="`/profile/${$props.author.username}`"
-        ><img :src="$props.author.image"
+        ><img :src="$props.author.image || MISSING_PROFILE_IMAGE_URL"
       /></router-link>
       <div class="info">
         <router-link
@@ -25,6 +25,8 @@
 </template>
 
 <script>
+import { MISSING_PROFILE_IMAGE_URL } from "../config";
+
 export default {
   name: "ArticlePreview",
   props: {
@@ -35,6 +37,8 @@ export default {
     title: String,
     description: String
   },
-  setup() {}
+  setup() {
+    return { MISSING_PROFILE_IMAGE_URL };
+  }
 };
 </script>

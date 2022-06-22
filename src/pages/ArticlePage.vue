@@ -108,6 +108,8 @@ import CommentCard from "../components/CommentCard.vue";
 import useFavoriteArticle from "../composables/favorite-article";
 import useFollowProfile from "../composables/follow-profile";
 
+import { MISSING_PROFILE_IMAGE_URL } from "../config";
+
 export default {
   name: "ArticlePage",
   components: { FollowButton, CommentForm, CommentCard },
@@ -131,6 +133,9 @@ export default {
       const commentsData = await commentsAPI.getComments(route.params.slug);
 
       article.value = articleData;
+      if (!article.value.author.image) {
+        article.value.author.image = MISSING_PROFILE_IMAGE_URL;
+      }
       comments.value = commentsData;
     });
 

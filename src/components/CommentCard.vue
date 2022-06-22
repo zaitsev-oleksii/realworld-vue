@@ -7,7 +7,10 @@
     </div>
     <div class="card-footer">
       <a href="" class="comment-author">
-        <img :src="$props.author.image" class="comment-author-img" />
+        <img
+          :src="$props.author.image || MISSING_PROFILE_IMAGE_URL"
+          class="comment-author-img"
+        />
       </a>
       &nbsp;
       <a href="" class="comment-author">{{ $props.author.username }}</a>
@@ -17,6 +20,8 @@
 </template>
 
 <script>
+import { MISSING_PROFILE_IMAGE_URL } from "../config";
+
 export default {
   name: "CommentCard",
   props: {
@@ -24,6 +29,8 @@ export default {
     createdAt: String,
     body: String
   },
-  setup() {}
+  setup() {
+    return { MISSING_PROFILE_IMAGE_URL };
+  }
 };
 </script>
