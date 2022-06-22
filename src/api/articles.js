@@ -67,10 +67,14 @@ export const createArticle = async (articleData, token) => {
   return response.article;
 };
 
-export const getArticle = async (slug) => {
+export const getArticle = async (slug, token) => {
   const queryURL = `${ARTICLES_API_URL}/${slug}`;
 
-  const response = await fetch(queryURL).then((res) => res.json());
+  const response = await fetch(queryURL, {
+    headers: {
+      ...(token && { Authorization: `Bearer ${token}` })
+    }
+  }).then((res) => res.json());
 
   return response.article;
 };
