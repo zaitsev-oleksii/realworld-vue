@@ -23,7 +23,10 @@ const useFollowProfile = ({ username, articleSlug }) => {
       profile = articleData.author.username;
     }
     if (username) {
-      const profileData = await profileAPI.getProfile(username);
+      const profileData = await profileAPI.getProfile(
+        username,
+        store.state.user.token
+      );
       following.value = profileData.following;
       profile = username;
     }

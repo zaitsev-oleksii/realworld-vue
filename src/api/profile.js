@@ -1,9 +1,13 @@
 const BASE_API_URL = "https://api.realworld.io/api/profiles";
 
-export const getProfile = async (username) => {
+export const getProfile = async (username, token) => {
   const requestURL = `${BASE_API_URL}/${username}`;
 
-  const response = await fetch(requestURL).then((res) => res.json());
+  const response = await fetch(requestURL, {
+    headers: {
+      ...(token && { Authorization: `Bearer ${token}` })
+    }
+  }).then((res) => res.json());
 
   return response.profile;
 };

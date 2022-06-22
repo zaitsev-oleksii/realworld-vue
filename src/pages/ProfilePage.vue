@@ -9,7 +9,17 @@
             <p>
               {{ profile.bio }}
             </p>
-            <follow-button :following="following" @click="handleFollow" />
+            <router-link to="/settings" v-if="isCurrentUserProfile">
+              <button class="btn btn-sm btn-outline-secondary">
+                <i class="ion-gear-a"></i>
+                &nbsp; Edit Profile Settings
+              </button>
+            </router-link>
+            <follow-button
+              v-else
+              :following="following"
+              @click="handleFollow"
+            />
           </div>
         </div>
       </div>
@@ -58,8 +68,8 @@
 </template>
 
 <script>
-import { ref, watch, onMounted } from "vue";
-// import { useStore } from "vuex";
+import { ref, computed, watch, onMounted } from "vue";
+import { useStore } from "vuex";
 import { useRoute, useRouter } from "vue-router";
 
 import profileAPI from "../api/profile";
@@ -79,13 +89,17 @@ export default {
   name: "ProfilePage",
   components: { FollowButton, ArticleFeed },
   setup() {
-    // const store = useStore();
+    const store = useStore();
     const route = useRoute();
     const router = useRouter();
 
     const profile = ref(null);
     const profileArticles = ref([]);
     const favoritedArticles = ref([]);
+
+    const isCurrentUserProfile = computed(
+      () => store.state.user.username === route.params.username
+    );
 
     const currentArticlesTab = ref(articlesTabs.Created);
     const setArticlesTab = (newTab) => {
@@ -120,6 +134,7 @@ export default {
 
     return {
       profile,
+      isCurrentUserProfile,
       profileArticles,
       favoritedArticles,
       articlesTabs,
