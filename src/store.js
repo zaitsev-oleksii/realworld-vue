@@ -1,4 +1,5 @@
 import { createStore } from "vuex";
+import profileAPI from "./api/profile";
 
 export const store = createStore({
   state() {
@@ -24,8 +25,23 @@ export const store = createStore({
       state.user.email = email;
       state.user.username = username;
       state.user.bio = bio;
-      state.user.image = image;
       state.user.token = token;
+      state.user.image = image;
+    }
+  },
+  actions: {
+    async setUser({ commit }, userData) {
+      const { email, username, bio, token } = userData;
+
+      const profile = await profileAPI.getProfile(username);
+
+      commit("setUser", {
+        email,
+        username,
+        bio,
+        token,
+        image: profile.image
+      });
     }
   }
 });

@@ -89,7 +89,7 @@ export default {
         userData
       );
 
-      store.commit("setUser", newUserData);
+      store.dispatch("setUser", newUserData);
       router.push({ path: `/profile/${newUserData.username}` });
     };
 

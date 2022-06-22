@@ -9,7 +9,10 @@
       ></textarea>
     </div>
     <div class="card-footer">
-      <img :src="currentUserImage" class="comment-author-img" />
+      <img
+        :src="currentUserImage || MISSING_PROFILE_IMAGE_URL"
+        class="comment-author-img"
+      />
       <button type="submit" class="btn btn-sm btn-primary">Post Comment</button>
     </div>
   </form>
@@ -18,6 +21,8 @@
 <script>
 import { ref, computed } from "vue";
 import { useStore } from "vuex";
+
+import { MISSING_PROFILE_IMAGE_URL } from "../config";
 
 export default {
   name: "CommentForm",
@@ -33,7 +38,8 @@ export default {
     return {
       commentBody,
       currentUserImage,
-      handleSubmit
+      handleSubmit,
+      MISSING_PROFILE_IMAGE_URL
     };
   }
 };
