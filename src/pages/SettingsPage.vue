@@ -1,17 +1,18 @@
 <template>
-  <div class="settings-page">
+  <div class="settings-page" v-if="isAuthorized">
     <div class="container page">
       <div class="row">
         <div class="col-md-6 offset-md-3 col-xs-12">
           <h1 class="text-xs-center">Your Settings</h1>
 
-          <form>
+          <form @submit.prevent="handleSubmitUpdates">
             <fieldset>
               <fieldset class="form-group">
                 <input
                   class="form-control"
                   type="text"
                   placeholder="URL of profile picture"
+                  v-model="userData.image"
                 />
               </fieldset>
               <fieldset class="form-group">
@@ -19,6 +20,7 @@
                   class="form-control form-control-lg"
                   type="text"
                   placeholder="Your Name"
+                  v-model="userData.username"
                 />
               </fieldset>
               <fieldset class="form-group">
@@ -26,6 +28,7 @@
                   class="form-control form-control-lg"
                   rows="8"
                   placeholder="Short bio about you"
+                  v-model="userData.bio"
                 ></textarea>
               </fieldset>
               <fieldset class="form-group">
@@ -33,6 +36,7 @@
                   class="form-control form-control-lg"
                   type="text"
                   placeholder="Email"
+                  v-model="userData.email"
                 />
               </fieldset>
               <fieldset class="form-group">
@@ -40,9 +44,13 @@
                   class="form-control form-control-lg"
                   type="password"
                   placeholder="Password"
+                  v-model="userData.password"
                 />
               </fieldset>
-              <button class="btn btn-lg btn-primary pull-xs-right">
+              <button
+                type="submit"
+                class="btn btn-lg btn-primary pull-xs-right"
+              >
                 Update Settings
               </button>
             </fieldset>
@@ -54,8 +62,38 @@
 </template>
 
 <script>
+import { reactive, computed } from "vue";
+import { useStore } from "vuex";
+import { useRouter } from "vue-router";
+import authAPI from "../api/auth";
 export default {
   name: "SettingsPage",
-  setup() {}
+  setup() {
+    const store = useStore();
+    const router = useRouter();
+
+    const isAuthorized = computed(() => store.getters.isAuthorized);
+    if (!isAuthorized.value) {
+      router.push("/login");
+      return;
+    }
+
+    const userData = reactive({
+      ...store.state.user,
+      password: ""
+    });
+
+    const handleSubmitUpdates = async () => {
+      const newUserData = await authAPI.updateCurrentUser(
+        store.state.user.token,
+        userData
+      );
+
+      store.commit("setUser", newUserData);
+      router.push({ path: `/profile/${newUserData.username}` });
+    };
+
+    return { isAuthorized, userData, handleSubmitUpdates };
+  }
 };
 </script>

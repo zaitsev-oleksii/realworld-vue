@@ -58,7 +58,13 @@ export const updateCurrentUser = async (token, userData) => {
       Authorization: `Bearer ${token}`
     },
     body: JSON.stringify({
-      user: userData
+      user: {
+        ...(userData.image && { image: userData.image }),
+        ...(userData.username && { username: userData.username }),
+        ...(userData.bio && { bio: userData.bio }),
+        ...(userData.email && { email: userData.email }),
+        ...(userData.password && { password: userData.password })
+      }
     })
   }).then((res) => res.json());
 
