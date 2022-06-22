@@ -12,8 +12,15 @@
         >
         <span class="date">{{ $props.createdAt }}</span>
       </div>
-      <button class="btn btn-outline-primary btn-sm pull-xs-right">
-        <i class="ion-heart"></i> {{ $props.favoritesCount }}
+      <button
+        class="btn btn-sm pull-xs-right"
+        :class="{
+          'btn-primary': favorited,
+          'btn-outline-primary': !favorited
+        }"
+        @click="handleFavorite"
+      >
+        <i class="ion-heart"></i> {{ favoritesCount }}
       </button>
     </div>
     <router-link :to="`/article/${$props.slug}`" class="preview-link">
@@ -25,6 +32,8 @@
 </template>
 
 <script>
+import useFavoriteArticle from "../composables/favorite-article";
+
 import { MISSING_PROFILE_IMAGE_URL } from "../config";
 
 export default {
@@ -33,12 +42,19 @@ export default {
     slug: String,
     author: Object,
     createdAt: String,
-    favoritesCount: Number,
     title: String,
     description: String
   },
-  setup() {
-    return { MISSING_PROFILE_IMAGE_URL };
+  setup(props) {
+    const [favorited, handleFavorite, favoritesCount] = useFavoriteArticle(
+      props.slug
+    );
+    return {
+      favorited,
+      handleFavorite,
+      favoritesCount,
+      MISSING_PROFILE_IMAGE_URL
+    };
   }
 };
 </script>

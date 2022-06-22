@@ -5,7 +5,6 @@
     :slug="article.slug"
     :author="article.author"
     :createdAt="article.createdAt"
-    :favoritesCount="article.favoritesCount"
     :title="article.title"
     :description="article.description"
   />
