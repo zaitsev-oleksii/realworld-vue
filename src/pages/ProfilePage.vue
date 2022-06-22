@@ -1,15 +1,15 @@
 <template>
-  <div class="profile-page">
+  <div class="profile-page" v-if="profile">
     <div class="user-info">
       <div class="container">
         <div class="row">
           <div class="col-xs-12 col-md-10 offset-md-1">
             <img :src="profile.image" class="user-img" />
-            <h4>{{ username }}</h4>
+            <h4>{{ profile.username }}</h4>
             <p>
               {{ profile.bio }}
             </p>
-            <follow-button :username="username" />
+            <follow-button :following="following" @click="handleFollow" />
           </div>
         </div>
       </div>
@@ -58,7 +58,7 @@
 </template>
 
 <script>
-import { ref, computed, watch, onMounted } from "vue";
+import { ref, watch, onMounted } from "vue";
 // import { useStore } from "vuex";
 import { useRoute, useRouter } from "vue-router";
 
@@ -67,6 +67,8 @@ import articlesAPI from "../api/articles";
 
 import FollowButton from "../components/FollowButton.vue";
 import ArticleFeed from "../components/ArticleFeed.vue";
+
+import useFollowProfile from "../composables/follow-profile";
 
 const articlesTabs = {
   Created: "Created",
@@ -81,12 +83,7 @@ export default {
     const route = useRoute();
     const router = useRouter();
 
-    const profile = ref({
-      username: "",
-      bio: "",
-      image: "",
-      following: false
-    });
+    const profile = ref(null);
     const profileArticles = ref([]);
     const favoritedArticles = ref([]);
 
@@ -117,14 +114,19 @@ export default {
     onMounted(setProfileData);
     watch(() => route.params.username, setProfileData);
 
+    const [following, handleFollow] = useFollowProfile({
+      username: route.params.username
+    });
+
     return {
-      username: computed(() => route.params.username),
       profile,
       profileArticles,
       favoritedArticles,
       articlesTabs,
       currentArticlesTab,
-      setArticlesTab
+      setArticlesTab,
+      following,
+      handleFollow
     };
   }
 };
