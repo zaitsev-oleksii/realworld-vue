@@ -11,15 +11,18 @@
             <span class="date">{{ article.createdAt }}</span>
           </div>
           <follow-button
-            v-if="followingAuthor !== null"
+            v-if="following !== null"
             :username="article.author.username"
-            :following="followingAuthor"
+            :following="following"
             @click="handleFollow"
           />
           &nbsp;&nbsp;
-          <button class="btn btn-sm btn-outline-primary">
+          <button
+            class="btn btn-sm btn-outline-primary"
+            @click="handleFavorite"
+          >
             <i class="ion-heart"></i>
-            &nbsp; Favorite Post
+            &nbsp; {{ !favorited ? "Favorite" : "Unfavorite" }} Post
             <span class="counter">({{ article.favoritesCount }})</span>
           </button>
         </div>
@@ -44,16 +47,23 @@
           </div>
 
           <follow-button
-            v-if="followingAuthor !== null"
+            v-if="following !== null"
             :username="article.author.username"
-            :following="followingAuthor"
+            :following="following"
             @click="handleFollow"
           />
           &nbsp;
-          <button class="btn btn-sm btn-outline-primary">
+          <button
+            class="btn btn-sm btn-outline-primary"
+            @click="handleFavorite"
+          >
             <i class="ion-heart"></i>
-            &nbsp; Favorite Post
-            <span class="counter">({{ article.favoritesCount }})</span>
+            &nbsp;
+            <span class="counter"
+              >{{ !favorited ? "Favorite" : "Unfavorite" }} Post ({{
+                article.favoritesCount
+              }})</span
+            >
           </button>
         </div>
       </div>
@@ -90,11 +100,13 @@ import { useRoute, useRouter } from "vue-router";
 
 import articlesAPI from "../api/articles";
 import commentsAPI from "../api/comments";
-import profileAPI from "../api/profile";
 
 import FollowButton from "../components/FollowButton.vue";
 import CommentForm from "../components/CommentForm.vue";
 import CommentCard from "../components/CommentCard.vue";
+
+import useFavoriteArticle from "../composables/favorite-article";
+import useFollowProfile from "../composables/follow-profile";
 
 export default {
   name: "ArticlePage",
@@ -110,8 +122,6 @@ export default {
 
     const comments = ref([]);
 
-    const followingAuthor = ref(null);
-
     onMounted(async () => {
       const articleData = await articlesAPI.getArticle(route.params.slug);
       if (!articleData) {
@@ -122,34 +132,22 @@ export default {
 
       article.value = articleData;
       comments.value = commentsData;
-      followingAuthor.value = article.value.author.following;
     });
 
-    const handleFollow = async () => {
-      if (!isAuthorized.value) {
-        router.push({ path: "/login" });
-        return;
-      }
+    const [following, handleFollow] = useFollowProfile({
+      articleSlug: route.params.slug
+    });
 
-      const profileData = await (!followingAuthor.value
-        ? profileAPI.follow(
-            store.state.user.token,
-            article.value.author.username
-          )
-        : profileAPI.unfollow(
-            store.state.user.token,
-            article.value.author.username
-          ));
-
-      followingAuthor.value = profileData.following;
-    };
+    const [favorited, handleFavorite] = useFavoriteArticle(route.params.slug);
 
     return {
       article,
       comments,
       isAuthorized,
-      followingAuthor,
-      handleFollow
+      following,
+      handleFollow,
+      favorited,
+      handleFavorite
     };
   }
 };
