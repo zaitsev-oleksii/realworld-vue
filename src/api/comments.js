@@ -1,8 +1,12 @@
 const BASE_API_URL = "https://api.realworld.io/api/articles";
 
-export const getComments = async (slug) => {
+export const getComments = async (slug, token) => {
   const requestURL = `${BASE_API_URL}/${slug}/comments`;
-  const response = await fetch(requestURL).then((res) => res.json());
+  const response = await fetch(requestURL, {
+    headers: {
+      ...(token && { Authorization: `Bearer ${token}` })
+    }
+  }).then((res) => res.json());
 
   return response.comments;
 };

@@ -23,17 +23,31 @@ import { ref, computed } from "vue";
 import { useStore } from "vuex";
 
 import { MISSING_PROFILE_IMAGE_URL } from "../config";
+import commentsAPI from "../api/comments";
 
 export default {
   name: "CommentForm",
-  setup() {
+  props: {
+    articleSlug: String
+  },
+  emits: {
+    "new-comment": null
+  },
+  setup(props, { emit }) {
     const store = useStore();
 
     const commentBody = ref("");
 
     const currentUserImage = computed(() => store.state.user.image);
 
-    const handleSubmit = () => {};
+    const handleSubmit = async () => {
+      await commentsAPI.createComment(
+        props.articleSlug,
+        { body: commentBody.value },
+        store.state.user.token
+      );
+      emit("new-comment");
+    };
 
     return {
       commentBody,

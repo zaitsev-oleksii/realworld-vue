@@ -70,7 +70,11 @@
 
       <div class="row">
         <div class="col-xs-12 col-md-8 offset-md-2">
-          <comment-form v-if="isAuthorized" />
+          <comment-form
+            v-if="isAuthorized"
+            :articleSlug="article.slug"
+            @new-comment="setComments"
+          />
           <template v-else>
             <span>
               <router-link to="/login">Sign in</router-link> or
@@ -121,22 +125,30 @@ export default {
     const isAuthorized = computed(() => store.getters.isAuthorized);
 
     const article = ref(null);
-
-    const comments = ref([]);
-
-    onMounted(async () => {
+    const setArticle = async () => {
       const articleData = await articlesAPI.getArticle(route.params.slug);
       if (!articleData) {
         router.push("/");
         return;
       }
-      const commentsData = await commentsAPI.getComments(route.params.slug);
-
       article.value = articleData;
       if (!article.value.author.image) {
         article.value.author.image = MISSING_PROFILE_IMAGE_URL;
       }
+    };
+
+    const comments = ref([]);
+    const setComments = async () => {
+      const commentsData = await commentsAPI.getComments(
+        route.params.slug,
+        store.state.user?.token
+      );
       comments.value = commentsData;
+    };
+
+    onMounted(async () => {
+      setArticle();
+      setComments();
     });
 
     const [following, handleFollow] = useFollowProfile({
@@ -148,6 +160,7 @@ export default {
     return {
       article,
       comments,
+      setComments,
       isAuthorized,
       following,
       handleFollow,
