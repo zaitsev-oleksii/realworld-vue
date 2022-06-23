@@ -5,7 +5,9 @@
         <h1>{{ article.title }}</h1>
 
         <div class="article-meta">
-          <a href=""><img :src="article.author.image" /></a>
+          <a href=""
+            ><img :src="article.author.image || MISSING_PROFILE_IMAGE_URL"
+          /></a>
           <div class="info">
             <a href="" class="author">{{ article.author.username }}</a>
             <span class="date">{{ article.createdAt }}</span>
@@ -132,9 +134,6 @@ export default {
         return;
       }
       article.value = articleData;
-      if (!article.value.author.image) {
-        article.value.author.image = MISSING_PROFILE_IMAGE_URL;
-      }
     };
 
     const comments = ref([]);
@@ -165,7 +164,8 @@ export default {
       following,
       handleFollow,
       favorited,
-      handleFavorite
+      handleFavorite,
+      MISSING_PROFILE_IMAGE_URL
     };
   }
 };
