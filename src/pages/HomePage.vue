@@ -50,8 +50,8 @@
               <a
                 href=""
                 class="tag-pill tag-default"
-                v-for="(tag, idx) in tagList"
-                :key="idx"
+                v-for="tag in tagList"
+                :key="tag"
                 >{{ tag }}</a
               >
             </div>

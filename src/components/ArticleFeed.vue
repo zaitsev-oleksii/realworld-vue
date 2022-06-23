@@ -7,6 +7,7 @@
     :createdAt="article.createdAt"
     :title="article.title"
     :description="article.description"
+    :tags="article.tagList"
   />
 </template>
 

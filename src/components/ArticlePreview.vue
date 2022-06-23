@@ -27,6 +27,15 @@
       <h1>{{ $props.title }}</h1>
       <p>{{ $props.description }}</p>
       <span>Read more...</span>
+      <ul class="tag-list" v-if="$props.tags.length > 0">
+        <li
+          class="tag-default tag-pill tag-outline"
+          v-for="tag in $props.tags"
+          :key="tag"
+        >
+          {{ tag }}
+        </li>
+      </ul>
     </router-link>
   </div>
 </template>
@@ -43,7 +52,8 @@ export default {
     author: Object,
     createdAt: String,
     title: String,
-    description: String
+    description: String,
+    tags: Array
   },
   setup(props) {
     const [favorited, handleFavorite, favoritesCount] = useFavoriteArticle(
