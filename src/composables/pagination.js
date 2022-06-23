@@ -16,12 +16,16 @@ const usePagination = ({ limitPerPage, totalElements }) => {
   const goToPrevPage = () => {
     currentPage.value = currentPage.value <= 1 ? 1 : currentPage.value - 1;
   };
+  const goToPage = (page) => {
+    currentPage.value = page;
+  };
 
   return {
     currentPage,
     offset,
     goToNextPage,
     goToPrevPage,
+    goToPage,
     firstPage,
     lastPage
   };
