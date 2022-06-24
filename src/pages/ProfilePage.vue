@@ -92,13 +92,6 @@ export default {
         return;
       }
 
-      // const profileArticlesData = await articlesAPI.getArticles(10, 0, {
-      //   author: route.params.username
-      // });
-      // const favoritedArticlesData = await articlesAPI.getArticles(10, 0, {
-      //   favoritedBy: route.params.username
-      // });
-
       profile.value = profileData;
     };
 
@@ -124,7 +117,7 @@ export default {
     ];
 
     const { accessibleTabs, currentTab, currentTabComponent, setCurrentTab } =
-      useTabs(tabsMeta);
+      useTabs(tabsMeta, store.getters.isAuthorized);
 
     onMounted(setProfileData);
     watch(() => route.params.username, setProfileData);

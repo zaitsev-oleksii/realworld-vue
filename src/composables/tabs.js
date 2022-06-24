@@ -1,5 +1,4 @@
 import { ref, computed, markRaw } from "vue";
-import { useStore } from "vuex";
 
 /*
   [{
@@ -10,11 +9,9 @@ import { useStore } from "vuex";
   {...}]
 */
 
-const useTabs = (tabsMeta) => {
-  const store = useStore();
-
+const useTabs = (tabsMeta, isAuthorized) => {
   const accessibleTabs = ref(
-    (!store.getters.isAuthorized
+    (!isAuthorized
       ? tabsMeta.filter((tab) => tab.requiresAuth !== true)
       : tabsMeta
     ).map((tab) => ({
@@ -41,7 +38,7 @@ const useTabs = (tabsMeta) => {
 
   const addTab = (newTabMeta) => {
     const newTab =
-      !store.getters.isAuthorized && newTabMeta.requiresAuth === true
+      !isAuthorized && newTabMeta.requiresAuth === true
         ? null
         : {
             name: newTabMeta.name,
