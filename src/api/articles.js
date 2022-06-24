@@ -13,7 +13,8 @@ export const getTags = async () => {
 export const getArticles = async ({
   limit = 10,
   offset = 0,
-  filterParams = {}
+  filterParams = {},
+  token
 }) => {
   const { tag, author, favoritedBy } = filterParams ?? {};
 
@@ -26,7 +27,12 @@ export const getArticles = async ({
   });
 
   const response = await fetch(
-    `${ARTICLES_API_URL}?${queryParams.toString()}`
+    `${ARTICLES_API_URL}?${queryParams.toString()}`,
+    {
+      headers: {
+        ...(token && { Authorization: `Bearer ${token}` })
+      }
+    }
   ).then((res) => res.json());
 
   return response.articles;
