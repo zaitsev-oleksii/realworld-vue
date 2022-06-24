@@ -14,6 +14,7 @@ const routes = [
   { path: "/register", component: RegisterPage },
   { path: "/settings", component: SettingsPage },
   { path: "/editor", component: EditorPage },
+  { path: "/editor/:slug", component: EditorPage },
   { path: "/article/:slug", component: ArticlePage },
   { path: "/profile/:username", component: ProfilePage }
 ];
