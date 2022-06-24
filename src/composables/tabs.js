@@ -13,7 +13,6 @@ import { useStore } from "vuex";
 const useTabs = (tabsMeta) => {
   const store = useStore();
 
-  console.log(store.state.user);
   const accessibleTabs = (
     !store.getters.isAuthorized
       ? tabsMeta.filter((tab) => tab.requiresAuth !== true)
@@ -22,9 +21,9 @@ const useTabs = (tabsMeta) => {
     name: tab.name,
     display: tab.display,
     requiresAuth: tab.requiresAuth,
-    component: markRaw(tab.component)
+    component: markRaw(tab.component),
+    props: tab.props
   }));
-  // console.log(accessibleTabs);
 
   const currentTab = ref(accessibleTabs[0]);
 
