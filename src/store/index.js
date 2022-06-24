@@ -1,5 +1,9 @@
 import { createStore } from "vuex";
-import profileAPI from "./api/profile";
+
+import { localStoragePlugin } from "./local-storage";
+
+import authAPI from "../api/auth";
+import profileAPI from "../api/profile";
 
 export const store = createStore({
   state() {
@@ -31,17 +35,24 @@ export const store = createStore({
   },
   actions: {
     async setUser({ commit }, userData) {
-      const { email, username, bio, token } = userData;
+      const { email, username, token } = userData;
 
       const profile = await profileAPI.getProfile(username);
 
       commit("setUser", {
         email,
         username,
-        bio,
+        bio: profile.bio,
         token,
         image: profile.image
       });
+    },
+    async setUserToken({ dispatch }, token) {
+      const userData = await authAPI.getCurrentUser(token);
+      if (userData) {
+        await dispatch("setUser", userData);
+      }
     }
-  }
+  },
+  plugins: [localStoragePlugin]
 });
