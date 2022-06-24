@@ -57,7 +57,6 @@
 
 <script>
 import { ref, onMounted } from "vue";
-import { useStore } from "vuex";
 import articlesAPI from "../api/articles";
 
 import useTabs from "../composables/tabs";
@@ -67,8 +66,6 @@ import ArticleFeed from "../components/ArticleFeed.vue";
 export default {
   name: "HomePage",
   setup() {
-    const store = useStore();
-
     const tagList = ref([]);
     onMounted(async () => {
       const tags = await articlesAPI.getTags();
@@ -118,7 +115,6 @@ export default {
       currentTab,
       setCurrentTab,
       currentTabComponent,
-      isAuthorized: store.getters.isAuthorized,
       tabsMeta,
       filterByTag
     };

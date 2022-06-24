@@ -84,13 +84,16 @@
               on this article.
             </span>
           </template>
-          <template v-if="comments.length > 0">
+          <template v-if="displayedComments.length > 0">
             <comment-card
-              v-for="comment in comments"
+              v-for="comment in displayedComments"
               :key="comment.id"
+              :articleSlug="article.slug"
+              :id="comment.id"
               :author="comment.author"
               :createdAt="comment.createdAt"
               :body="comment.body"
+              @comment-deleted="setComments"
             />
           </template>
         </div>
@@ -137,6 +140,7 @@ export default {
     };
 
     const comments = ref([]);
+    const displayedComments = computed(() => comments.value.slice().reverse());
     const setComments = async () => {
       const commentsData = await commentsAPI.getComments(
         route.params.slug,
@@ -158,7 +162,7 @@ export default {
 
     return {
       article,
-      comments,
+      displayedComments,
       setComments,
       isAuthorized,
       following,

@@ -15,22 +15,54 @@
       &nbsp;
       <a href="" class="comment-author">{{ $props.author.username }}</a>
       <span class="date-posted">{{ $props.createdAt }}</span>
+      <span class="mod-options" v-if="isCurrentUserComment">
+        <i class="ion-trash-a" @click="handleDeleteComment"></i>
+      </span>
     </div>
   </div>
 </template>
 
 <script>
+import { computed } from "vue";
+import { useStore } from "vuex";
+
+import commentsAPI from "../api/comments";
+
 import { MISSING_PROFILE_IMAGE_URL } from "../config";
 
 export default {
   name: "CommentCard",
   props: {
+    articleSlug: String,
+    id: Number,
     author: Object,
     createdAt: String,
     body: String
   },
-  setup() {
-    return { MISSING_PROFILE_IMAGE_URL };
+  emits: {
+    "comment-deleted": null
+  },
+  setup(props, { emit }) {
+    const store = useStore();
+
+    const isCurrentUserComment = computed(
+      () => store.state.user.username === props.author.username
+    );
+
+    const handleDeleteComment = async () => {
+      await commentsAPI.deleteComment(
+        props.articleSlug,
+        props.id,
+        store.state.user.token
+      );
+      emit("comment-deleted");
+    };
+
+    return {
+      isCurrentUserComment,
+      handleDeleteComment,
+      MISSING_PROFILE_IMAGE_URL
+    };
   }
 };
 </script>
