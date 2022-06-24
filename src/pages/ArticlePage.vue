@@ -12,21 +12,37 @@
             <a href="" class="author">{{ article.author.username }}</a>
             <span class="date">{{ article.createdAt }}</span>
           </div>
-          <follow-button
-            v-if="following !== null"
-            :username="article.author.username"
-            :following="following"
-            @click="handleFollow"
-          />
-          &nbsp;&nbsp;
-          <button
-            class="btn btn-sm btn-outline-primary"
-            @click="handleFavorite"
-          >
-            <i class="ion-heart"></i>
-            &nbsp; {{ !favorited ? "Favorite" : "Unfavorite" }} Post
-            <span class="counter">({{ article.favoritesCount }})</span>
-          </button>
+          <template v-if="!isCurrentUserArticle">
+            <follow-button
+              v-if="following !== null"
+              :username="article.author.username"
+              :following="following"
+              @click="handleFollow"
+            />
+            &nbsp;&nbsp;
+            <button
+              class="btn btn-sm btn-outline-primary"
+              @click="handleFavorite"
+            >
+              <i class="ion-heart"></i>
+              &nbsp; {{ !favorited ? "Favorite" : "Unfavorite" }} Post
+              <span class="counter">({{ article.favoritesCount }})</span>
+            </button>
+          </template>
+          <template v-if="isCurrentUserArticle">
+            <router-link
+              class="btn btn-outline-secondary btn-sm"
+              :to="`/editor/${article.slug}`"
+            >
+              <i class="ion-edit"></i> Edit Article
+            </router-link>
+            <button
+              class="btn btn-outline-danger btn-sm"
+              @click="handleDeleteArticle"
+            >
+              <i class="ion-trash-a"></i> Delete Article
+            </button>
+          </template>
         </div>
       </div>
     </div>
@@ -48,25 +64,42 @@
             <span class="date">{{ article.createdAt }}</span>
           </div>
 
-          <follow-button
-            v-if="following !== null"
-            :username="article.author.username"
-            :following="following"
-            @click="handleFollow"
-          />
-          &nbsp;
-          <button
-            class="btn btn-sm btn-outline-primary"
-            @click="handleFavorite"
-          >
-            <i class="ion-heart"></i>
+          <template v-if="!isCurrentUserArticle">
+            <follow-button
+              v-if="following !== null"
+              :username="article.author.username"
+              :following="following"
+              @click="handleFollow"
+            />
             &nbsp;
-            <span class="counter"
-              >{{ !favorited ? "Favorite" : "Unfavorite" }} Post ({{
-                article.favoritesCount
-              }})</span
+            <button
+              class="btn btn-sm btn-outline-primary"
+              @click="handleFavorite"
             >
-          </button>
+              <i class="ion-heart"></i>
+              &nbsp;
+              <span class="counter"
+                >{{ !favorited ? "Favorite" : "Unfavorite" }} Post ({{
+                  article.favoritesCount
+                }})</span
+              >
+            </button>
+          </template>
+
+          <template v-if="isCurrentUserArticle">
+            <router-link
+              class="btn btn-outline-secondary btn-sm"
+              :to="`/editor/${article.slug}`"
+            >
+              <i class="ion-edit"></i> Edit Article
+            </router-link>
+            <button
+              class="btn btn-outline-danger btn-sm"
+              @click="handleDeleteArticle"
+            >
+              <i class="ion-trash-a"></i> Delete Article
+            </button>
+          </template>
         </div>
       </div>
 
@@ -130,6 +163,17 @@ export default {
     const isAuthorized = computed(() => store.getters.isAuthorized);
 
     const article = ref(null);
+    const isCurrentUserArticle = computed(
+      () => store.state.user.username === article.value?.author.username
+    );
+    const handleDeleteArticle = async () => {
+      await articlesAPI.deleteArticle(
+        article.value.slug,
+        store.state.user.token
+      );
+      router.push("/");
+    };
+
     const setArticle = async () => {
       const articleData = await articlesAPI.getArticle(route.params.slug);
       if (!articleData) {
@@ -162,6 +206,8 @@ export default {
 
     return {
       article,
+      isCurrentUserArticle,
+      handleDeleteArticle,
       displayedComments,
       setComments,
       isAuthorized,
