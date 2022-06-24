@@ -41,10 +41,10 @@
 
             <div class="tag-list">
               <a
-                href=""
                 class="tag-pill tag-default"
                 v-for="tag in tagList"
                 :key="tag"
+                @click="filterByTag(tag)"
                 >{{ tag }}</a
               >
             </div>
@@ -91,8 +91,26 @@ export default {
       }
     ];
 
-    const { accessibleTabs, currentTab, currentTabComponent, setCurrentTab } =
-      useTabs(tabsMeta);
+    const {
+      accessibleTabs,
+      currentTab,
+      currentTabComponent,
+      setCurrentTab,
+      addTab,
+      removeTab
+    } = useTabs(tabsMeta);
+
+    const filterByTag = (tag) => {
+      const filteredFeedTabMeta = {
+        name: `FilteredFeed`,
+        display: `#${tag}`,
+        component: ArticleFeed,
+        props: { api: articlesAPI.getArticles, filterParams: { tag: tag } }
+      };
+      removeTab("FilteredFeed");
+      addTab(filteredFeedTabMeta);
+      setCurrentTab("FilteredFeed");
+    };
 
     return {
       tagList,
@@ -101,7 +119,8 @@ export default {
       setCurrentTab,
       currentTabComponent,
       isAuthorized: store.getters.isAuthorized,
-      tabsMeta
+      tabsMeta,
+      filterByTag
     };
   }
 };
