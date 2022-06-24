@@ -12,34 +12,23 @@
         <div class="col-md-9">
           <div class="feed-toggle">
             <ul class="nav nav-pills outline-active">
-              <li class="nav-item">
+              <li
+                class="nav-item"
+                v-for="tab in accessibleTabs"
+                :key="tab.name"
+              >
                 <a
                   class="nav-link"
                   :class="{
-                    active: currentFeed === feedTabs.Personal,
-                    disabled: !isAuthorized
+                    active: currentTab.name === tab.name
                   }"
-                  @click="setCurrentFeed(feedTabs.Personal)"
-                  >Your Feed</a
-                >
-              </li>
-              <li class="nav-item">
-                <a
-                  class="nav-link"
-                  :class="{
-                    active: currentFeed === feedTabs.Global
-                  }"
-                  @click="setCurrentFeed(feedTabs.Global)"
-                  >Global Feed</a
+                  @click="setCurrentTab(tab.name)"
+                  >{{ tab.display }}</a
                 >
               </li>
             </ul>
           </div>
-
-          <personal-feed
-            v-if="isAuthorized && currentFeed === feedTabs.Personal"
-          />
-          <global-feed v-if="currentFeed === feedTabs.Global" />
+          <component :is="currentTabComponent" />
         </div>
 
         <div class="col-md-3">
@@ -67,17 +56,13 @@ import { ref, onMounted } from "vue";
 import { useStore } from "vuex";
 import articlesAPI from "../api/articles";
 
+import useTabs from "../composables/tabs";
+
 import GlobalFeed from "../layout/GlobalFeed.vue";
 import PersonalFeed from "../layout/PersonalFeed.vue";
 
-const feedTabs = {
-  Global: "Global",
-  Personal: "Personal"
-};
-
 export default {
   name: "HomePage",
-  components: { GlobalFeed, PersonalFeed },
   setup() {
     const store = useStore();
 
@@ -87,20 +72,27 @@ export default {
       tagList.value = tags;
     });
 
-    const currentFeed = ref(
-      store.getters.isAuthorized ? feedTabs.Personal : feedTabs.Global
-    );
-    const setCurrentFeed = (newFeed) => {
-      if (newFeed === feedTabs.Personal && !store.getters.isAuthorized) return;
-      currentFeed.value = newFeed;
-    };
+    const tabsMeta = [
+      {
+        name: "Personal",
+        display: "Personal Feed",
+        component: PersonalFeed,
+        requiresAuth: true
+      },
+      { name: "Global", display: "Global Feed", component: GlobalFeed }
+    ];
+
+    const { accessibleTabs, currentTab, currentTabComponent, setCurrentTab } =
+      useTabs(tabsMeta);
 
     return {
       tagList,
-      feedTabs,
-      currentFeed,
-      setCurrentFeed,
-      isAuthorized: store.getters.isAuthorized
+      accessibleTabs,
+      currentTab,
+      setCurrentTab,
+      currentTabComponent,
+      isAuthorized: store.getters.isAuthorized,
+      tabsMeta
     };
   }
 };
