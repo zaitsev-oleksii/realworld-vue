@@ -10,12 +10,12 @@ export const getTags = async () => {
   return response.tags;
 };
 
-export const getArticles = async (
+export const getArticles = async ({
   limit = 10,
   offset = 0,
   filterParams = {}
-) => {
-  const { tag, author, favoritedBy } = filterParams;
+}) => {
+  const { tag, author, favoritedBy } = filterParams ?? {};
 
   const queryParams = new URLSearchParams({
     limit: limit.toString(),
@@ -32,7 +32,7 @@ export const getArticles = async (
   return response.articles;
 };
 
-export const getArticlesFeed = async (limit = 10, offset = 0, token) => {
+export const getArticlesFeed = async ({ limit = 10, offset = 0, token }) => {
   const queryParams = new URLSearchParams({
     limit: limit.toString(),
     offset: offset.toString()
