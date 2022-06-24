@@ -28,7 +28,11 @@
               </li>
             </ul>
           </div>
-          <component :is="currentTabComponent" />
+          <component
+            :is="currentTabComponent"
+            v-bind="currentTab.props"
+            :key="currentTab"
+          />
         </div>
 
         <div class="col-md-3">
@@ -58,8 +62,7 @@ import articlesAPI from "../api/articles";
 
 import useTabs from "../composables/tabs";
 
-import GlobalFeed from "../layout/GlobalFeed.vue";
-import PersonalFeed from "../layout/PersonalFeed.vue";
+import ArticleFeed from "../components/ArticleFeed.vue";
 
 export default {
   name: "HomePage",
@@ -76,10 +79,16 @@ export default {
       {
         name: "Personal",
         display: "Personal Feed",
-        component: PersonalFeed,
-        requiresAuth: true
+        component: ArticleFeed,
+        requiresAuth: true,
+        props: { api: articlesAPI.getArticlesFeed }
       },
-      { name: "Global", display: "Global Feed", component: GlobalFeed }
+      {
+        name: "Global",
+        display: "Global Feed",
+        component: ArticleFeed,
+        props: { api: articlesAPI.getArticles, filterParams: {} }
+      }
     ];
 
     const { accessibleTabs, currentTab, currentTabComponent, setCurrentTab } =

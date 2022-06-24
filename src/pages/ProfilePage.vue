@@ -28,38 +28,28 @@
     <div class="container">
       <div class="row">
         <div class="col-xs-12 col-md-10 offset-md-1">
-          <div class="articles-toggle">
+          <div class="feed-toggle">
             <ul class="nav nav-pills outline-active">
-              <li class="nav-item">
+              <li
+                class="nav-item"
+                v-for="tab in accessibleTabs"
+                :key="tab.name"
+              >
                 <a
                   class="nav-link"
                   :class="{
-                    active: currentArticlesTab === articlesTabs.Created
+                    active: currentTab.name === tab.name
                   }"
-                  @click="setArticlesTab(articlesTabs.Created)"
-                  >My Articles</a
-                >
-              </li>
-              <li class="nav-item">
-                <a
-                  class="nav-link"
-                  :class="{
-                    active: currentArticlesTab === articlesTabs.Favorited
-                  }"
-                  @click="setArticlesTab(articlesTabs.Favorited)"
-                  >Favorited Articles</a
+                  @click="setCurrentTab(tab.name)"
+                  >{{ tab.display }}</a
                 >
               </li>
             </ul>
           </div>
-
-          <article-feed
-            v-if="currentArticlesTab === articlesTabs.Created"
-            :articles="profileArticles"
-          />
-          <article-feed
-            v-if="currentArticlesTab === articlesTabs.Favorited"
-            :articles="favoritedArticles"
+          <component
+            :is="currentTabComponent"
+            v-bind="currentTab.props"
+            :key="currentTab"
           />
         </div>
       </div>
@@ -79,11 +69,7 @@ import FollowButton from "../components/FollowButton.vue";
 import ArticleFeed from "../components/ArticleFeed.vue";
 
 import useFollowProfile from "../composables/follow-profile";
-
-const articlesTabs = {
-  Created: "Created",
-  Favorited: "Favorited"
-};
+import useTabs from "../composables/tabs";
 
 export default {
   name: "ProfilePage",
@@ -94,17 +80,10 @@ export default {
     const router = useRouter();
 
     const profile = ref(null);
-    const profileArticles = ref([]);
-    const favoritedArticles = ref([]);
 
     const isCurrentUserProfile = computed(
       () => store.state.user.username === route.params.username
     );
-
-    const currentArticlesTab = ref(articlesTabs.Created);
-    const setArticlesTab = (newTab) => {
-      currentArticlesTab.value = newTab;
-    };
 
     const setProfileData = async () => {
       const profileData = await profileAPI.getProfile(route.params.username);
@@ -113,17 +92,39 @@ export default {
         return;
       }
 
-      const profileArticlesData = await articlesAPI.getArticles(10, 0, {
-        author: route.params.username
-      });
-      const favoritedArticlesData = await articlesAPI.getArticles(10, 0, {
-        favoritedBy: route.params.username
-      });
+      // const profileArticlesData = await articlesAPI.getArticles(10, 0, {
+      //   author: route.params.username
+      // });
+      // const favoritedArticlesData = await articlesAPI.getArticles(10, 0, {
+      //   favoritedBy: route.params.username
+      // });
 
       profile.value = profileData;
-      profileArticles.value = profileArticlesData;
-      favoritedArticles.value = favoritedArticlesData;
     };
+
+    const tabsMeta = [
+      {
+        name: "UsersArticles",
+        display: "My Articles",
+        component: ArticleFeed,
+        props: {
+          api: articlesAPI.getArticles,
+          filterParams: { author: route.params.username }
+        }
+      },
+      {
+        name: "FavoritedArticles",
+        display: "Favorited Articles",
+        component: ArticleFeed,
+        props: {
+          api: articlesAPI.getArticles,
+          filterParams: { favoritedBy: route.params.username }
+        }
+      }
+    ];
+
+    const { accessibleTabs, currentTab, currentTabComponent, setCurrentTab } =
+      useTabs(tabsMeta);
 
     onMounted(setProfileData);
     watch(() => route.params.username, setProfileData);
@@ -135,11 +136,10 @@ export default {
     return {
       profile,
       isCurrentUserProfile,
-      profileArticles,
-      favoritedArticles,
-      articlesTabs,
-      currentArticlesTab,
-      setArticlesTab,
+      accessibleTabs,
+      currentTab,
+      currentTabComponent,
+      setCurrentTab,
       following,
       handleFollow
     };
