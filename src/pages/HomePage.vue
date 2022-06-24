@@ -78,13 +78,15 @@ export default {
         display: "Personal Feed",
         component: ArticleFeed,
         requiresAuth: true,
-        props: { api: articlesAPI.getArticlesFeed }
+        props: { api: articlesAPI.getArticlesFeed },
+        onSelect: () => removeTab("FilteredFeed")
       },
       {
         name: "Global",
         display: "Global Feed",
         component: ArticleFeed,
-        props: { api: articlesAPI.getArticles, filterParams: {} }
+        props: { api: articlesAPI.getArticles, filterParams: {} },
+        onSelect: () => removeTab("FilteredFeed")
       }
     ];
 

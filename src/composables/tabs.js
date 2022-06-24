@@ -22,7 +22,8 @@ const useTabs = (tabsMeta) => {
       display: tab.display,
       requiresAuth: tab.requiresAuth,
       component: markRaw(tab.component),
-      props: tab.props
+      props: tab.props,
+      onSelect: tab.onSelect
     }))
   );
 
@@ -33,6 +34,9 @@ const useTabs = (tabsMeta) => {
   const setCurrentTab = (newTabName) => {
     const newTab = accessibleTabs.value.find((tab) => tab.name === newTabName);
     currentTab.value = newTab;
+    if (currentTab.value.onSelect) {
+      currentTab.value.onSelect();
+    }
   };
 
   const addTab = (newTabMeta) => {
