@@ -55,6 +55,13 @@
               </button>
             </fieldset>
           </form>
+          <hr />
+          <button
+            class="btn btn-outline-danger pull-xs-right"
+            @click="handleLogout"
+          >
+            Or click here to logout.
+          </button>
         </div>
       </div>
     </div>
@@ -66,6 +73,7 @@ import { reactive, computed } from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import authAPI from "../api/auth";
+import { LOGOUT } from "../store/action-types";
 export default {
   name: "SettingsPage",
   setup() {
@@ -93,7 +101,12 @@ export default {
       router.push({ path: `/profile/${newUserData.username}` });
     };
 
-    return { isAuthorized, userData, handleSubmitUpdates };
+    const handleLogout = async () => {
+      store.dispatch(LOGOUT);
+      router.push({ path: "/" });
+    };
+
+    return { isAuthorized, userData, handleSubmitUpdates, handleLogout };
   }
 };
 </script>

@@ -40,7 +40,7 @@ import { reactive } from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 
-import authAPI from "../api/auth";
+import { LOGIN } from "../store/action-types";
 
 export default {
   name: "LoginPage",
@@ -54,12 +54,10 @@ export default {
     });
 
     const handleSubmit = async () => {
-      const userData = await authAPI.login({
+      await store.dispatch(LOGIN, {
         email: formData.email,
         password: formData.password
       });
-
-      await store.dispatch("setUser", userData);
       router.push({ path: "/" });
     };
 
