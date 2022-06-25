@@ -41,11 +41,11 @@ export default {
     const currentUserImage = computed(() => store.state.user.image);
 
     const handleSubmit = async () => {
-      await commentsAPI.createComment(
-        props.articleSlug,
-        { body: commentBody.value },
-        store.state.user.token
-      );
+      await commentsAPI.createComment({
+        slug: props.articleSlug,
+        commentData: { body: commentBody.value },
+        token: store.state.user.token
+      });
       emit("new-comment");
     };
 

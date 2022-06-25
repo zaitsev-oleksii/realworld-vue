@@ -50,11 +50,11 @@ export default {
     );
 
     const handleDeleteComment = async () => {
-      await commentsAPI.deleteComment(
-        props.articleSlug,
-        props.id,
-        store.state.user.token
-      );
+      await commentsAPI.deleteComment({
+        slug: props.articleSlug,
+        id: props.id,
+        token: store.state.user.token
+      });
       emit("comment-deleted");
     };
 

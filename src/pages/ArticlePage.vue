@@ -167,15 +167,17 @@ export default {
       () => store.state.user.username === article.value?.author.username
     );
     const handleDeleteArticle = async () => {
-      await articlesAPI.deleteArticle(
-        article.value.slug,
-        store.state.user.token
-      );
+      await articlesAPI.deleteArticle({
+        slug: article.value.slug,
+        token: store.state.user.token
+      });
       router.push("/");
     };
 
     const setArticle = async () => {
-      const articleData = await articlesAPI.getArticle(route.params.slug);
+      const articleData = await articlesAPI.getArticle({
+        slug: route.params.slug
+      });
       if (!articleData) {
         router.push("/");
         return;
@@ -186,10 +188,10 @@ export default {
     const comments = ref([]);
     const displayedComments = computed(() => comments.value.slice().reverse());
     const setComments = async () => {
-      const commentsData = await commentsAPI.getComments(
-        route.params.slug,
-        store.state.user?.token
-      );
+      const commentsData = await commentsAPI.getComments({
+        slug: route.params.slug,
+        token: store.state.user?.token
+      });
       comments.value = commentsData;
     };
 

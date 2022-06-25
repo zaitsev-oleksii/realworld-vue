@@ -84,10 +84,10 @@ export default {
     });
 
     const handleSubmitUpdates = async () => {
-      const newUserData = await authAPI.updateCurrentUser(
-        store.state.user.token,
-        userData
-      );
+      const newUserData = await authAPI.updateCurrentUser({
+        token: store.state.user.token,
+        userData: userData
+      });
 
       store.dispatch("setUser", newUserData);
       router.push({ path: `/profile/${newUserData.username}` });

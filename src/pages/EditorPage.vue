@@ -93,7 +93,9 @@ export default {
       // if (route.params.slug !== "AAAB-57111") router.push("/editor/AAAB-57111");
 
       if (route.params.slug) {
-        const articleData = await articlesAPI.getArticle(route.params.slug);
+        const articleData = await articlesAPI.getArticle({
+          slug: route.params.slug
+        });
         if (articleData.author.username !== store.state.user.username) {
           router.push("/");
           return;
@@ -123,18 +125,18 @@ export default {
         tagList: tags.value
       };
       if (route.params.slug) {
-        const updatedArticleData = await articlesAPI.updateArticle(
-          route.params.slug,
-          newArticleData,
-          store.state.user.token
-        );
+        const updatedArticleData = await articlesAPI.updateArticle({
+          slug: route.params.slug,
+          articleData: newArticleData,
+          token: store.state.user.token
+        });
         router.push(`/article/${updatedArticleData.slug}`);
         return;
       }
-      const createdArticleData = await articlesAPI.createArticle(
-        newArticleData,
-        store.state.user.token
-      );
+      const createdArticleData = await articlesAPI.createArticle({
+        articleData: newArticleData,
+        token: store.state.user.token
+      });
       router.push(`/article/${createdArticleData.slug}`);
     };
 

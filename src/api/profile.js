@@ -1,6 +1,6 @@
 const BASE_API_URL = "https://api.realworld.io/api/profiles";
 
-export const getProfile = async (username, token) => {
+export const getProfile = async ({ username, token }) => {
   const requestURL = `${BASE_API_URL}/${username}`;
 
   const response = await fetch(requestURL, {
@@ -12,7 +12,7 @@ export const getProfile = async (username, token) => {
   return response.profile;
 };
 
-export const follow = async (token, username) => {
+export const follow = async ({ token, username }) => {
   const requestURL = `${BASE_API_URL}/${username}/follow`;
 
   const response = await fetch(requestURL, {
@@ -25,7 +25,7 @@ export const follow = async (token, username) => {
   return response.profile;
 };
 
-export const unfollow = async (token, username) => {
+export const unfollow = async ({ token, username }) => {
   const requestURL = `${BASE_API_URL}/${username}/follow`;
 
   const response = await fetch(requestURL, {

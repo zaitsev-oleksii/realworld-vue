@@ -53,7 +53,7 @@ export const getArticlesFeed = async ({ limit = 10, offset = 0, token }) => {
   return response.articles;
 };
 
-export const createArticle = async (articleData, token) => {
+export const createArticle = async ({ articleData, token }) => {
   const response = await fetch(ARTICLES_API_URL, {
     method: "POST",
     headers: {
@@ -73,7 +73,7 @@ export const createArticle = async (articleData, token) => {
   return response.article;
 };
 
-export const getArticle = async (slug, token) => {
+export const getArticle = async ({ slug, token }) => {
   const queryURL = `${ARTICLES_API_URL}/${slug}`;
 
   const response = await fetch(queryURL, {
@@ -85,7 +85,7 @@ export const getArticle = async (slug, token) => {
   return response.article;
 };
 
-export const updateArticle = async (slug, articleData, token) => {
+export const updateArticle = async ({ slug, articleData, token }) => {
   const queryURL = `${ARTICLES_API_URL}/${slug}`;
 
   const response = await fetch(queryURL, {
@@ -107,7 +107,7 @@ export const updateArticle = async (slug, articleData, token) => {
   return response.article;
 };
 
-export const deleteArticle = async (slug, token) => {
+export const deleteArticle = async ({ slug, token }) => {
   const queryURL = `${ARTICLES_API_URL}/${slug}`;
 
   const response = await fetch(queryURL, {
@@ -120,7 +120,7 @@ export const deleteArticle = async (slug, token) => {
   return response;
 };
 
-const favorite = async (slug, token) => {
+const favorite = async ({ slug, token }) => {
   const queryURL = `${ARTICLES_API_URL}/${slug}/favorite`;
 
   const response = await fetch(queryURL, {
@@ -133,7 +133,7 @@ const favorite = async (slug, token) => {
   return response.article;
 };
 
-const unfavorite = async (slug, token) => {
+const unfavorite = async ({ slug, token }) => {
   const queryURL = `${ARTICLES_API_URL}/${slug}/favorite`;
 
   const response = await fetch(queryURL, {

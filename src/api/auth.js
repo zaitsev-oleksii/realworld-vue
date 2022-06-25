@@ -2,8 +2,7 @@ const LOGIN_API_URL = "https://api.realworld.io/api/users/login";
 const REGISTER_API_URL = "https://api.realworld.io/api/users";
 const CURRENT_USER_API_URL = "https://api.realworld.io/api/user";
 
-export const login = async (loginData) => {
-  const { email, password } = loginData;
+export const login = async ({ email, password }) => {
   const response = await fetch(LOGIN_API_URL, {
     method: "POST",
     headers: {
@@ -20,9 +19,7 @@ export const login = async (loginData) => {
   return response.user;
 };
 
-export const register = async (registerData) => {
-  const { username, email, password } = registerData;
-
+export const register = async ({ username, email, password }) => {
   const response = await fetch(REGISTER_API_URL, {
     method: "POST",
     headers: {
@@ -40,7 +37,7 @@ export const register = async (registerData) => {
   return response.user;
 };
 
-export const getCurrentUser = async (token) => {
+export const getCurrentUser = async ({ token }) => {
   const response = await fetch(CURRENT_USER_API_URL, {
     headers: {
       Authorization: `Bearer ${token}`
@@ -50,7 +47,7 @@ export const getCurrentUser = async (token) => {
   return response.user;
 };
 
-export const updateCurrentUser = async (token, userData) => {
+export const updateCurrentUser = async ({ token, userData }) => {
   const response = await fetch(CURRENT_USER_API_URL, {
     method: "PUT",
     headers: {

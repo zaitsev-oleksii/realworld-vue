@@ -86,7 +86,9 @@ export default {
     );
 
     const setProfileData = async () => {
-      const profileData = await profileAPI.getProfile(route.params.username);
+      const profileData = await profileAPI.getProfile({
+        username: route.params.username
+      });
       if (!profileData) {
         router.push("/");
         return;

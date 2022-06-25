@@ -37,7 +37,7 @@ export const store = createStore({
     async setUser({ commit }, userData) {
       const { email, username, token } = userData;
 
-      const profile = await profileAPI.getProfile(username);
+      const profile = await profileAPI.getProfile({ username: username });
 
       commit("setUser", {
         email,
@@ -48,7 +48,7 @@ export const store = createStore({
       });
     },
     async setUserToken({ dispatch }, token) {
-      const userData = await authAPI.getCurrentUser(token);
+      const userData = await authAPI.getCurrentUser({ token: token });
       if (userData) {
         await dispatch("setUser", userData);
       }

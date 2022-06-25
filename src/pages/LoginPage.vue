@@ -54,7 +54,10 @@ export default {
     });
 
     const handleSubmit = async () => {
-      const userData = await authAPI.login(formData);
+      const userData = await authAPI.login({
+        email: formData.email,
+        password: formData.password
+      });
 
       await store.dispatch("setUser", userData);
       router.push({ path: "/" });
