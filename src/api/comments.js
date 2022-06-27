@@ -1,46 +1,44 @@
-const BASE_API_URL = "https://api.realworld.io/api/articles";
+import axios from "axios";
+import tokenService from "../token-service";
 
-export const getComments = async ({ slug, token }) => {
-  const requestURL = `${BASE_API_URL}/${slug}/comments`;
-  const response = await fetch(requestURL, {
-    headers: {
-      ...(token && { Authorization: `Bearer ${token}` })
-    }
-  }).then((res) => res.json());
+const BASE_API_URL = "https://api.realworld.io/api";
+const COMMENTS_PATH = "articles/:slug/comments";
+const DELETE_COMMENT_PATH = "articles/:slug/comments/:id";
 
-  return response.comments;
+const authToken = tokenService.getToken();
+
+const instance = axios.create({
+  baseURL: BASE_API_URL,
+  headers: {
+    ...(authToken && { Authorization: `Bearer ${authToken} ` })
+  }
+});
+
+export const getComments = (slug) => {
+  const url = COMMENTS_PATH.replace(":slug", encodeURIComponent(slug));
+  return instance
+    .get(url)
+    .then((res) => ({ error: null, data: res.data.comments }))
+    .catch((err) => ({ error: err.response.data.errors }));
 };
 
-export const createComment = async ({ slug, commentData, token }) => {
-  const requestURL = `${BASE_API_URL}/${slug}/comments`;
-
-  const response = await fetch(requestURL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`
-    },
-    body: JSON.stringify({
-      comment: {
-        body: commentData.body
-      }
-    })
-  }).then((res) => res.json());
-
-  return response.comment;
+export const createComment = (slug, commentData) => {
+  const url = COMMENTS_PATH.replace(":slug", encodeURIComponent(slug));
+  return instance
+    .post(url, commentData)
+    .then((res) => ({ error: null, data: res.data.comment }))
+    .catch((err) => ({ error: err.response.data.errors }));
 };
 
-export const deleteComment = async ({ slug, id, token }) => {
-  const requestURL = `${BASE_API_URL}/${slug}/comments/${id}`;
-
-  const response = await fetch(requestURL, {
-    method: "DELETE",
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  }).then((res) => res.json());
-
-  return response;
+export const deleteComment = (slug, id) => {
+  const url = DELETE_COMMENT_PATH.replace(
+    ":slug",
+    encodeURIComponent(slug)
+  ).replace(":id", encodeURIComponent(id));
+  return instance
+    .delete(url)
+    .then((res) => ({ error: null, data: res.data }))
+    .catch((err) => ({ error: err.response.data.errors }));
 };
 
 const commentsAPI = {

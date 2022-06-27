@@ -1,149 +1,114 @@
+import axios from "axios";
+import tokenService from "../token-service";
+
 const BASE_API_URL = "https://api.realworld.io/api";
-const ARTICLES_API_URL = `${BASE_API_URL}/articles`;
-const FEED_API_URL = `${BASE_API_URL}/articles/feed`;
 
-export const getTags = async () => {
-  const response = await fetch(`${BASE_API_URL}/tags`).then((res) =>
-    res.json()
-  );
+const TAGS_PATH = "/tags";
+const ARTICLES_PATH = "/articles";
+const FEED_PATH = "/articles/feed";
+const ARTICLE_PATH = "/articles/:slug";
+const FAVORITE_ARTICLE_PATH = "/articles/:slug/favorite";
 
-  return response.tags;
-};
+const authToken = tokenService.getToken();
 
-export const getArticles = async ({
-  limit = 10,
-  offset = 0,
-  filterParams = {},
-  token
-}) => {
+const instance = axios.create({
+  baseURL: BASE_API_URL,
+  headers: {
+    ...(authToken && { Authorization: `Bearer ${authToken} ` })
+  }
+});
+
+export const getTags = () =>
+  instance
+    .get(TAGS_PATH)
+    .then((res) => ({ error: null, data: res.data.tags }))
+    .catch((err) => ({ error: err.response.data.errors }));
+
+export const getArticles = (options = {}) => {
+  const { limit, offset, filterParams } = options;
   const { tag, author, favoritedBy } = filterParams ?? {};
-
-  const queryParams = new URLSearchParams({
-    limit: limit.toString(),
-    offset: offset.toString(),
+  const params = new URLSearchParams({
+    ...(limit && { limit: limit.toString() }),
+    ...(offset && { offset: offset.toString() }),
     ...(tag && { tag }),
     ...(author && { author }),
     ...(favoritedBy && { favorited: favoritedBy })
   });
-
-  const response = await fetch(
-    `${ARTICLES_API_URL}?${queryParams.toString()}`,
-    {
-      headers: {
-        ...(token && { Authorization: `Bearer ${token}` })
-      }
-    }
-  ).then((res) => res.json());
-
-  return response.articles;
+  return instance
+    .get(ARTICLES_PATH, { params: params })
+    .then((res) => ({ error: null, data: res.data.articles }))
+    .catch((err) => ({ error: err.response.data.errors }));
 };
 
-export const getArticlesFeed = async ({ limit = 10, offset = 0, token }) => {
-  const queryParams = new URLSearchParams({
-    limit: limit.toString(),
-    offset: offset.toString()
+export const getArticlesFeed = (options = {}) => {
+  const { limit, offset } = options;
+  const params = new URLSearchParams({
+    ...(limit && { limit: limit.toString() }),
+    ...(offset && { offset: offset.toString() })
   });
-
-  const response = await fetch(`${FEED_API_URL}?${queryParams.toString()}`, {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  }).then((res) => res.json());
-
-  return response.articles;
+  return instance
+    .get(FEED_PATH, { params: params })
+    .then((res) => ({ error: null, data: res.data.articles }))
+    .catch((err) => ({ error: err.response.data.errors }));
 };
 
-export const createArticle = async ({ articleData, token }) => {
-  const response = await fetch(ARTICLES_API_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`
-    },
-    body: JSON.stringify({
-      article: {
-        title: articleData.title,
-        description: articleData.description,
-        body: articleData.body,
-        tagList: articleData.tagList ?? []
-      }
-    })
-  }).then((res) => res.json());
-
-  return response.article;
+export const createArticle = (articleData) => {
+  const article = {
+    title: articleData.title,
+    description: articleData.description,
+    body: articleData.body,
+    tagList: articleData.tagList ?? []
+  };
+  return instance
+    .post(ARTICLES_PATH, { article: article })
+    .then((res) => ({ error: null, data: res.data.article }))
+    .catch((err) => ({ error: err.response.data.errors }));
 };
 
-export const getArticle = async ({ slug, token }) => {
-  const queryURL = `${ARTICLES_API_URL}/${slug}`;
-
-  const response = await fetch(queryURL, {
-    headers: {
-      ...(token && { Authorization: `Bearer ${token}` })
-    }
-  }).then((res) => res.json());
-
-  return response.article;
+export const getArticle = (slug) => {
+  const url = ARTICLE_PATH.replace(":slug", encodeURIComponent(slug));
+  return instance
+    .get(url)
+    .then((res) => ({ error: null, data: res.data.article }))
+    .catch((err) => ({ error: err.response.data.errors }));
 };
 
-export const updateArticle = async ({ slug, articleData, token }) => {
-  const queryURL = `${ARTICLES_API_URL}/${slug}`;
-
-  const response = await fetch(queryURL, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`
-    },
-    body: JSON.stringify({
-      article: {
-        title: articleData.title,
-        description: articleData.description,
-        body: articleData.body,
-        tagList: articleData.tagList ?? []
-      }
-    })
-  }).then((res) => res.json());
-
-  return response.article;
+export const updateArticle = ({ slug, articleData }) => {
+  const url = ARTICLE_PATH.replace(":slug", encodeURIComponent(slug));
+  const article = {
+    title: articleData.title,
+    description: articleData.description,
+    body: articleData.body,
+    tagList: articleData.tagList || []
+  };
+  return instance
+    .put(url, { article: article })
+    .then((res) => ({ error: null, data: res.data.article }))
+    .catch((err) => ({ error: err.response.data.errors }));
 };
 
-export const deleteArticle = async ({ slug, token }) => {
-  const queryURL = `${ARTICLES_API_URL}/${slug}`;
-
-  const response = await fetch(queryURL, {
-    method: "DELETE",
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  }).then((res) => res.json());
-
-  return response;
+export const deleteArticle = (slug) => {
+  const url = ARTICLE_PATH.replace(":slug", encodeURIComponent(slug));
+  return instance
+    .delete(url)
+    .then((res) => ({ error: null, data: res.data }))
+    .catch((err) => ({ error: err.response.data.errors }));
 };
 
-const favorite = async ({ slug, token }) => {
-  const queryURL = `${ARTICLES_API_URL}/${slug}/favorite`;
-
-  const response = await fetch(queryURL, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  }).then((res) => res.json());
-
-  return response.article;
+const favorite = async (slug) => {
+  const url = FAVORITE_ARTICLE_PATH.replace(":slug", encodeURIComponent(slug));
+  return instance
+    .post(url)
+    .then((res) => ({ error: null, data: res.data.article }))
+    .catch((err) => ({ error: err.response.data.errors }));
 };
 
-const unfavorite = async ({ slug, token }) => {
-  const queryURL = `${ARTICLES_API_URL}/${slug}/favorite`;
-
-  const response = await fetch(queryURL, {
-    method: "DELETE",
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  }).then((res) => res.json());
-
-  return response.article;
+const unfavorite = async (slug) => {
+  const url = FAVORITE_ARTICLE_PATH.replace(":slug", encodeURIComponent(slug));
+  return instance
+    .delete(url)
+    .then((res) => ({ error: null, data: res.data.article }))
+    .catch((err) => ({ error: err.response.data.errors }));
 };
 
 const articlesAPI = {

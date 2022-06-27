@@ -1,71 +1,63 @@
-const LOGIN_API_URL = "https://api.realworld.io/api/users/login";
-const REGISTER_API_URL = "https://api.realworld.io/api/users";
-const CURRENT_USER_API_URL = "https://api.realworld.io/api/user";
+import axios from "axios";
+import tokenService from "../token-service";
 
-export const login = async ({ email, password }) => {
-  const response = await fetch(LOGIN_API_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      user: {
-        email,
-        password
-      }
-    })
-  }).then((res) => res.json());
+const BASE_API_URL = "https://api.realworld.io/api";
 
-  return response.user;
+const LOGIN_PATH = "/users/login";
+const REGISTER_PATH = "/users";
+const CURRENT_USER_PATH = "/user";
+
+const authToken = tokenService.getToken();
+
+const instance = axios.create({
+  baseURL: BASE_API_URL,
+  headers: {
+    ...(authToken && { Authorization: `Bearer ${authToken} ` })
+  }
+});
+
+export const login = (credentials) => {
+  const user = {
+    email: credentials.email,
+    password: credentials.password
+  };
+  return instance
+    .post(LOGIN_PATH, { user: user })
+    .then((res) => ({ error: null, data: res.data.user }))
+    .catch((err) => ({ error: err.response.data.errors }));
 };
 
-export const register = async ({ username, email, password }) => {
-  const response = await fetch(REGISTER_API_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      user: {
-        username,
-        email,
-        password
-      }
-    })
-  }).then((res) => res.json());
-
-  return response.user;
+export const register = (registerData) => {
+  const user = {
+    username: registerData.username || "",
+    email: registerData.email || "",
+    password: registerData.password || ""
+  };
+  return instance
+    .post(REGISTER_PATH, { user: user })
+    .then((res) => ({ error: null, data: res.data.user }))
+    .catch((err) => ({ error: err.response.data.errors }));
 };
 
-export const getCurrentUser = async ({ token }) => {
-  const response = await fetch(CURRENT_USER_API_URL, {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  }).then((res) => res.json());
+export const getCurrentUser = () =>
+  instance
+    .get(CURRENT_USER_PATH)
+    .then((res) => ({ error: null, data: res.data.user }))
+    .catch((err) => ({ error: err.response.data.errors }));
 
-  return response.user;
-};
+export const updateCurrentUser = (userData) => {
+  const user = {
+    ...(userData.image && { image: userData.image }),
+    ...(userData.username && { username: userData.username }),
+    ...(userData.bio && { bio: userData.bio }),
+    ...(userData.email && { email: userData.email }),
+    ...(userData.password && { password: userData.password })
+  };
 
-export const updateCurrentUser = async ({ token, userData }) => {
-  const response = await fetch(CURRENT_USER_API_URL, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`
-    },
-    body: JSON.stringify({
-      user: {
-        ...(userData.image && { image: userData.image }),
-        ...(userData.username && { username: userData.username }),
-        ...(userData.bio && { bio: userData.bio }),
-        ...(userData.email && { email: userData.email }),
-        ...(userData.password && { password: userData.password })
-      }
-    })
-  }).then((res) => res.json());
-
-  return response.user;
+  return instance
+    .put(CURRENT_USER_PATH, { user: user })
+    .then((res) => ({ error: null, data: res.data.user }))
+    .catch((err) => ({ error: err.response.data.errors }));
 };
 
 const authAPI = {

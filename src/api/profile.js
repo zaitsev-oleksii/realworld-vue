@@ -1,41 +1,47 @@
-const BASE_API_URL = "https://api.realworld.io/api/profiles";
+import axios from "axios";
+import tokenService from "../token-service";
 
-export const getProfile = async ({ username, token }) => {
-  const requestURL = `${BASE_API_URL}/${username}`;
+const BASE_API_URL = "https://api.realworld.io/api";
+const PROFILE_PATH = "/profiles/:username";
+const FOLLOW_PROFILE_PATH = "/profiles/:username/follow";
 
-  const response = await fetch(requestURL, {
-    headers: {
-      ...(token && { Authorization: `Bearer ${token}` })
-    }
-  }).then((res) => res.json());
+const authToken = tokenService.getToken();
 
-  return response.profile;
+const instance = axios.create({
+  baseURL: BASE_API_URL,
+  headers: {
+    ...(authToken && { Authorization: `Bearer ${authToken} ` })
+  }
+});
+
+export const getProfile = (username) => {
+  const url = PROFILE_PATH.replace(":username", encodeURIComponent(username));
+  return instance
+    .get(url)
+    .then((res) => ({ error: null, data: res.data.profile }))
+    .catch((err) => ({ error: err.response.data.errors }));
 };
 
-export const follow = async ({ token, username }) => {
-  const requestURL = `${BASE_API_URL}/${username}/follow`;
-
-  const response = await fetch(requestURL, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  }).then((res) => res.json());
-
-  return response.profile;
+export const follow = (username) => {
+  const url = FOLLOW_PROFILE_PATH.replace(
+    ":username",
+    encodeURIComponent(username)
+  );
+  return instance
+    .post(url)
+    .then((res) => ({ error: null, data: res.data.profile }))
+    .catch((err) => ({ error: err.response.data.errors }));
 };
 
-export const unfollow = async ({ token, username }) => {
-  const requestURL = `${BASE_API_URL}/${username}/follow`;
-
-  const response = await fetch(requestURL, {
-    method: "DELETE",
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  }).then((res) => res.json());
-
-  return response.profile;
+export const unfollow = (username) => {
+  const url = FOLLOW_PROFILE_PATH.replace(
+    ":username",
+    encodeURIComponent(username)
+  );
+  return instance
+    .delete(url)
+    .then((res) => ({ error: null, data: res.data.profile }))
+    .catch((err) => ({ error: err.response.data.errors }));
 };
 
 const profileAPI = {
