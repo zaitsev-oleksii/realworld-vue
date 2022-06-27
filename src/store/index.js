@@ -1,12 +1,12 @@
 import { createStore } from "vuex";
 
-import authAPI from "../api/auth";
-import profileAPI from "../api/profile";
-
 import tokenService from "../token-service";
 
-import { SET_USER, CLEAR_USER } from "./mutation-types";
+import { SET_USER, CLEAR_USER, SET_ERRORS } from "./mutation-types";
 import { LOGIN, LOGOUT, CHECK_AUTH } from "./action-types";
+
+import profileAPI from "@/api/profile";
+import authAPI from "@/api/auth";
 
 export const store = createStore({
   state() {
@@ -17,7 +17,8 @@ export const store = createStore({
         bio: "",
         image: "",
         token: ""
-      }
+      },
+      errors: null
     };
   },
   getters: {
@@ -40,30 +41,20 @@ export const store = createStore({
     [CLEAR_USER](state) {
       state.user = {};
       tokenService.destroyToken();
+    },
+    [SET_ERRORS](state, errors) {
+      state.errors = errors;
     }
   },
   actions: {
     async [LOGIN]({ commit }, credentials) {
-      const userData = await authAPI.login(credentials);
-      const { email, username, token } = userData;
-      const profile = await profileAPI.getProfile({ username: username });
-      commit(SET_USER, {
-        email,
-        username,
-        bio: profile.bio,
-        token,
-        image: profile.image
-      });
-    },
-    async [LOGOUT]({ commit }) {
-      commit(CLEAR_USER);
-    },
-    async [CHECK_AUTH]({ commit }) {
-      const token = tokenService.getToken();
-      if (token) {
-        const userData = await authAPI.getCurrentUser({ token: token });
-        const { email, username } = userData;
-        const profile = await profileAPI.getProfile({ username: username });
+      const { error, data: userData } = await authAPI.login(credentials);
+      console.log(error);
+      if (error) {
+        commit(SET_ERRORS, error);
+      } else {
+        const { email, username, token } = userData;
+        const profile = (await profileAPI.getProfile(username)).data;
         commit(SET_USER, {
           email,
           username,
@@ -71,6 +62,29 @@ export const store = createStore({
           token,
           image: profile.image
         });
+        commit(SET_ERRORS, null);
+      }
+    },
+    async [LOGOUT]({ commit }) {
+      commit(CLEAR_USER);
+    },
+    async [CHECK_AUTH]({ commit }) {
+      const token = tokenService.getToken();
+      if (token) {
+        const { error, data: userData } = await authAPI.getCurrentUser();
+        if (error) {
+          commit(SET_ERRORS, error);
+        } else {
+          const { email, username } = userData;
+          const profile = (await profileAPI.getProfile(username)).data;
+          commit(SET_USER, {
+            email,
+            username,
+            bio: profile.bio,
+            token,
+            image: profile.image
+          });
+        }
       }
     }
   }
