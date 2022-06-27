@@ -3,7 +3,7 @@ import { createStore } from "vuex";
 import tokenService from "../token-service";
 
 import { SET_USER, CLEAR_USER, SET_ERRORS } from "./mutation-types";
-import { LOGIN, LOGOUT, CHECK_AUTH } from "./action-types";
+import { LOGIN, LOGOUT, VERIFY_AUTH } from "./action-types";
 
 import profileAPI from "@/api/profile";
 import authAPI from "@/api/auth";
@@ -68,7 +68,7 @@ export const store = createStore({
     async [LOGOUT]({ commit }) {
       commit(CLEAR_USER);
     },
-    async [CHECK_AUTH]({ commit }) {
+    async [VERIFY_AUTH]({ commit }) {
       const token = tokenService.getToken();
       if (token) {
         const { error, data: userData } = await authAPI.getCurrentUser();
