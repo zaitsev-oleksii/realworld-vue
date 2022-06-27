@@ -12,10 +12,7 @@ const useFavoriteArticle = (slug) => {
   const favoritesCount = ref(null);
 
   const execute = async () => {
-    const articleData = await articlesAPI.getArticle({
-      slug: slug,
-      token: store.state.user.token
-    });
+    const articleData = (await articlesAPI.getArticle(slug)).data;
     favorited.value = articleData.favorited;
     favoritesCount.value = articleData.favoritesCount;
   };
@@ -28,9 +25,11 @@ const useFavoriteArticle = (slug) => {
       return;
     }
 
-    const articleData = await (!favorited.value
-      ? articlesAPI.favorite({ slug: slug, token: store.state.user.token })
-      : articlesAPI.unfavorite({ slug: slug, token: store.state.user.token }));
+    const articleData = (
+      await (!favorited.value
+        ? articlesAPI.favorite(slug)
+        : articlesAPI.unfavorite(slug))
+    ).data;
 
     favorited.value = articleData.favorited;
     favoritesCount.value = articleData.favoritesCount;

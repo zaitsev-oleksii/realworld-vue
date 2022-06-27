@@ -58,6 +58,7 @@
 <script>
 import { ref, onMounted } from "vue";
 import { useStore } from "vuex";
+
 import articlesAPI from "../api/articles";
 
 import useTabs from "../composables/tabs";
@@ -71,7 +72,7 @@ export default {
 
     const tagList = ref([]);
     onMounted(async () => {
-      const tags = await articlesAPI.getTags();
+      const tags = (await articlesAPI.getTags()).data;
       tagList.value = tags;
     });
 

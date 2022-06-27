@@ -21,7 +21,7 @@
 
 <script>
 import { ref, onMounted, computed, watch } from "vue";
-import { useStore } from "vuex";
+// import { useStore } from "vuex";
 
 import ArticleList from "./ArticleList.vue";
 import usePagination from "../composables/pagination";
@@ -36,7 +36,7 @@ export default {
     filterParams: Object
   },
   setup(props) {
-    const store = useStore();
+    // const store = useStore();
 
     const articles = ref([]);
 
@@ -67,22 +67,24 @@ export default {
     );
 
     const setArticlesData = async () => {
-      const articlesData = await props.api({
-        limit: ARTICLES_PER_PAGE,
-        offset: offset.value,
-        filterParams: props.filterParams,
-        token: store.state.user.token
-      });
+      const articlesData = (
+        await props.api({
+          limit: ARTICLES_PER_PAGE,
+          offset: offset.value,
+          filterParams: props.filterParams
+        })
+      ).data;
 
       articles.value = articlesData;
     };
     const setPrefetchedArticlesData = async () => {
-      const prefetchedArticlesData = await props.api({
-        limit: ARTICLES_PER_PAGE,
-        offset: offset.value + ARTICLES_PER_PAGE,
-        filterParams: props.filterParams,
-        token: store.state.user.token
-      });
+      const prefetchedArticlesData = (
+        await props.api({
+          limit: ARTICLES_PER_PAGE,
+          offset: offset.value + ARTICLES_PER_PAGE,
+          filterParams: props.filterParams
+        })
+      ).data;
       prefetchedArticles.value = prefetchedArticlesData;
     };
 

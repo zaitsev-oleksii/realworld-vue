@@ -93,7 +93,6 @@ export default {
 
     const handleSubmitUpdates = async () => {
       const newUserData = await authAPI.updateCurrentUser({
-        token: store.state.user.token,
         userData: userData
       });
 

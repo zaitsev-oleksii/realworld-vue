@@ -52,8 +52,7 @@ export default {
     const handleDeleteComment = async () => {
       await commentsAPI.deleteComment({
         slug: props.articleSlug,
-        id: props.id,
-        token: store.state.user.token
+        id: props.id
       });
       emit("comment-deleted");
     };

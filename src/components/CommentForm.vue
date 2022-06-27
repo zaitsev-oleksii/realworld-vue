@@ -5,7 +5,7 @@
         class="form-control"
         placeholder="Write a comment..."
         rows="3"
-        v-model="commentBody"
+        v-model="commentText"
       ></textarea>
     </div>
     <div class="card-footer">
@@ -36,21 +36,20 @@ export default {
   setup(props, { emit }) {
     const store = useStore();
 
-    const commentBody = ref("");
+    const commentText = ref("");
 
     const currentUserImage = computed(() => store.state.user.image);
 
     const handleSubmit = async () => {
       await commentsAPI.createComment({
         slug: props.articleSlug,
-        commentData: { body: commentBody.value },
-        token: store.state.user.token
+        commentText: commentText.value
       });
       emit("new-comment");
     };
 
     return {
-      commentBody,
+      commentText,
       currentUserImage,
       handleSubmit,
       MISSING_PROFILE_IMAGE_URL

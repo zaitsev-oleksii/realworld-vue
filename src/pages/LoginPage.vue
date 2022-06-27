@@ -8,6 +8,9 @@
             <a href="">Have an account?</a>
           </p>
 
+          <ul class="error-messages" v-if="errors">
+            <li>{{ parseErrors(errors) }}</li>
+          </ul>
           <form @submit.prevent="handleSubmit">
             <fieldset class="form-group">
               <input
@@ -36,11 +39,13 @@
 </template>
 
 <script>
-import { reactive } from "vue";
+import { computed, reactive } from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 
 import { LOGIN } from "../store/action-types";
+
+import { parseErrors } from "../helpers/errors";
 
 export default {
   name: "LoginPage",
@@ -53,17 +58,22 @@ export default {
       password: ""
     });
 
+    const errors = computed(() => store.state.errors);
+
     const handleSubmit = async () => {
       await store.dispatch(LOGIN, {
         email: formData.email,
         password: formData.password
       });
-      router.push({ path: "/" });
+
+      if (!errors.value) router.push({ path: "/" });
     };
 
     return {
       formData,
-      handleSubmit
+      handleSubmit,
+      errors,
+      parseErrors
     };
   }
 };

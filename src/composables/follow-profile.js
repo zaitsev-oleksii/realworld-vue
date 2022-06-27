@@ -15,18 +15,12 @@ const useFollowProfile = ({ username, articleSlug }) => {
 
   const execute = async () => {
     if (articleSlug) {
-      const articleData = await articleAPI.getArticle({
-        slug: articleSlug,
-        token: store.state.user.token
-      });
+      const articleData = (await articleAPI.getArticle(articleSlug)).data;
       following.value = articleData.author.following;
       profile = articleData.author.username;
     }
     if (username) {
-      const profileData = await profileAPI.getProfile({
-        username: username,
-        token: store.state.user.token
-      });
+      const profileData = (await profileAPI.getProfile(username)).data;
       following.value = profileData.following;
       profile = username;
     }
@@ -40,12 +34,11 @@ const useFollowProfile = ({ username, articleSlug }) => {
       return;
     }
 
-    const profileData = await (!following.value
-      ? profileAPI.follow({ token: store.state.user.token, username: profile })
-      : profileAPI.unfollow({
-          token: store.state.user.token,
-          username: profile
-        }));
+    const profileData = (
+      await (!following.value
+        ? profileAPI.follow(profile)
+        : profileAPI.unfollow(profile))
+    ).data;
 
     following.value = profileData.following;
   };
