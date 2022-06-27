@@ -66,14 +66,19 @@
 <script>
 import { ref, reactive, onMounted } from "vue";
 import { useStore } from "vuex";
-import { useRoute, useRouter } from "vue-router";
+import { useRouter } from "vue-router";
 import articlesAPI from "../api/articles";
 
 export default {
   name: "EditorPage",
-  setup() {
+  props: {
+    slug: {
+      type: String,
+      required: false
+    }
+  },
+  setup(props) {
     const store = useStore();
-    const route = useRoute();
     const router = useRouter();
 
     const formData = reactive({
@@ -92,9 +97,8 @@ export default {
       }
       // if (route.params.slug !== "AAAB-57111") router.push("/editor/AAAB-57111");
 
-      if (route.params.slug) {
-        const articleData = (await articlesAPI.getArticle(route.params.slug))
-          .data;
+      if (props.slug) {
+        const articleData = (await articlesAPI.getArticle(props.slug)).data;
         if (articleData.author.username !== store.state.user.username) {
           router.push("/");
           return;
@@ -123,10 +127,10 @@ export default {
         body: formData.body,
         tagList: tags.value
       };
-      if (route.params.slug) {
+      if (props.slug) {
         const updatedArticleData = (
           await articlesAPI.updateArticle({
-            slug: route.params.slug,
+            slug: props.slug,
             articleData: newArticleData
           })
         ).data;

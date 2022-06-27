@@ -60,7 +60,7 @@
 <script>
 import { ref, computed, watch, onMounted } from "vue";
 import { useStore } from "vuex";
-import { useRoute, useRouter } from "vue-router";
+import { useRouter } from "vue-router";
 
 import profileAPI from "../api/profile";
 import articlesAPI from "../api/articles";
@@ -74,20 +74,24 @@ import useTabs from "../composables/tabs";
 export default {
   name: "ProfilePage",
   components: { FollowButton, ArticleFeed },
-  setup() {
+  props: {
+    username: {
+      type: String,
+      required: true
+    }
+  },
+  setup(props) {
     const store = useStore();
-    const route = useRoute();
     const router = useRouter();
 
     const profile = ref(null);
 
     const isCurrentUserProfile = computed(
-      () => store.state.user.username === route.params.username
+      () => store.state.user.username === props.username
     );
 
     const setProfileData = async () => {
-      const profileData = (await profileAPI.getProfile(route.params.username))
-        .data;
+      const profileData = (await profileAPI.getProfile(props.username)).data;
       if (!profileData) {
         router.push("/");
         return;
@@ -103,7 +107,7 @@ export default {
         component: ArticleFeed,
         props: {
           api: articlesAPI.getArticles,
-          filterParams: { author: route.params.username }
+          filterParams: { author: props.username }
         }
       },
       {
@@ -112,7 +116,7 @@ export default {
         component: ArticleFeed,
         props: {
           api: articlesAPI.getArticles,
-          filterParams: { favoritedBy: route.params.username }
+          filterParams: { favoritedBy: props.username }
         }
       }
     ];
@@ -121,10 +125,10 @@ export default {
       useTabs(tabsMeta, store.getters.isAuthorized);
 
     onMounted(setProfileData);
-    watch(() => route.params.username, setProfileData);
+    watch(() => props.username, setProfileData);
 
     const [following, handleFollow] = useFollowProfile({
-      username: route.params.username
+      username: props.username
     });
 
     return {

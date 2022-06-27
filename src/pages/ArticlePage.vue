@@ -138,7 +138,7 @@
 <script>
 import { ref, onMounted, computed } from "vue";
 import { useStore } from "vuex";
-import { useRoute, useRouter } from "vue-router";
+import { useRouter } from "vue-router";
 
 import articlesAPI from "../api/articles";
 import commentsAPI from "../api/comments";
@@ -155,10 +155,15 @@ import { MISSING_PROFILE_IMAGE_URL } from "../config";
 export default {
   name: "ArticlePage",
   components: { FollowButton, CommentForm, CommentCard },
-  setup() {
+  props: {
+    slug: {
+      type: String,
+      required: true
+    }
+  },
+  setup(props) {
     const store = useStore();
     const router = useRouter();
-    const route = useRoute();
 
     const isAuthorized = computed(() => store.getters.isAuthorized);
 
@@ -172,8 +177,7 @@ export default {
     };
 
     const setArticle = async () => {
-      const articleData = (await articlesAPI.getArticle(route.params.slug))
-        .data;
+      const articleData = (await articlesAPI.getArticle(props.slug)).data;
       if (!articleData) {
         router.push("/");
         return;
@@ -184,8 +188,7 @@ export default {
     const comments = ref([]);
     const displayedComments = computed(() => comments.value.slice().reverse());
     const setComments = async () => {
-      const commentsData = (await commentsAPI.getComments(route.params.slug))
-        .data;
+      const commentsData = (await commentsAPI.getComments(props.slug)).data;
       comments.value = commentsData;
     };
 
@@ -195,10 +198,10 @@ export default {
     });
 
     const [following, handleFollow] = useFollowProfile({
-      articleSlug: route.params.slug
+      articleSlug: props.slug
     });
 
-    const [favorited, handleFavorite] = useFavoriteArticle(route.params.slug);
+    const [favorited, handleFavorite] = useFavoriteArticle(props.slug);
 
     return {
       article,
