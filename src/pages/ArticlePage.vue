@@ -5,11 +5,22 @@
         <h1>{{ article.title }}</h1>
 
         <div class="article-meta">
-          <a href=""
+          <router-link
+            :to="{
+              name: 'profile',
+              params: { username: article.author.username }
+            }"
             ><img :src="article.author.image || MISSING_PROFILE_IMAGE_URL"
-          /></a>
+          /></router-link>
           <div class="info">
-            <a href="" class="author">{{ article.author.username }}</a>
+            <router-link
+              :to="{
+                name: 'profile',
+                params: { username: article.author.username }
+              }"
+              class="author"
+              >{{ article.author.username }}</router-link
+            >
             <span class="date">{{ article.createdAt }}</span>
           </div>
           <template v-if="!isCurrentUserArticle">
@@ -32,7 +43,7 @@
           <template v-if="isCurrentUserArticle">
             <router-link
               class="btn btn-outline-secondary btn-sm"
-              :to="`/editor/${article.slug}`"
+              :to="{ name: 'editor', params: { slug: article.slug } }"
             >
               <i class="ion-edit"></i> Edit Article
             </router-link>
@@ -58,9 +69,22 @@
 
       <div class="article-actions">
         <div class="article-meta">
-          <a href="profile.html"><img :src="article.author.image" /></a>
+          <router-link
+            :to="{
+              name: 'profile',
+              params: { username: article.author.username }
+            }"
+            ><img :src="article.author.image"
+          /></router-link>
           <div class="info">
-            <a href="" class="author">{{ article.author.username }}</a>
+            <router-link
+              :to="{
+                name: 'profile',
+                params: { username: article.author.username }
+              }"
+              class="author"
+              >{{ article.author.username }}</router-link
+            >
             <span class="date">{{ article.createdAt }}</span>
           </div>
 
@@ -89,7 +113,7 @@
           <template v-if="isCurrentUserArticle">
             <router-link
               class="btn btn-outline-secondary btn-sm"
-              :to="`/editor/${article.slug}`"
+              :to="{ name: 'editor', params: { slug: article.slug } }"
             >
               <i class="ion-edit"></i> Edit Article
             </router-link>
@@ -112,9 +136,9 @@
           />
           <template v-else>
             <span>
-              <router-link to="/login">Sign in</router-link> or
-              <router-link to="/register">sign up</router-link> to add comments
-              on this article.
+              <router-link :to="{ name: 'login' }">Sign in</router-link> or
+              <router-link :to="{ name: 'register' }">sign up</router-link> to
+              add comments on this article.
             </span>
           </template>
           <template v-if="displayedComments.length > 0">

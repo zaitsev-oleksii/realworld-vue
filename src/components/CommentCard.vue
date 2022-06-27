@@ -2,19 +2,26 @@
   <div class="card">
     <div class="card-block">
       <p class="card-text">
-        {{ $props.body }}
+        {{ body }}
       </p>
     </div>
     <div class="card-footer">
-      <a href="" class="comment-author">
+      <router-link
+        :to="{ name: 'profile', params: { username: author.username } }"
+        class="comment-author"
+      >
         <img
-          :src="$props.author.image || MISSING_PROFILE_IMAGE_URL"
+          :src="author.image || MISSING_PROFILE_IMAGE_URL"
           class="comment-author-img"
         />
-      </a>
+      </router-link>
       &nbsp;
-      <a href="" class="comment-author">{{ $props.author.username }}</a>
-      <span class="date-posted">{{ $props.createdAt }}</span>
+      <router-link
+        :to="{ name: 'profile', params: { username: author.username } }"
+        class="comment-author"
+        >{{ author.username }}</router-link
+      >
+      <span class="date-posted">{{ createdAt }}</span>
       <span class="mod-options" v-if="isCurrentUserComment">
         <i class="ion-trash-a" @click="handleDeleteComment"></i>
       </span>

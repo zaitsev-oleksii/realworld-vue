@@ -9,14 +9,28 @@ import ArticlePage from "./pages/ArticlePage.vue";
 import ProfilePage from "./pages/ProfilePage.vue";
 
 const routes = [
-  { path: "/", component: HomePage },
-  { path: "/login", component: LoginPage },
-  { path: "/register", component: RegisterPage },
-  { path: "/settings", component: SettingsPage },
-  { path: "/editor", component: EditorPage },
-  { path: "/editor/:slug", component: EditorPage, props: true },
-  { path: "/article/:slug", component: ArticlePage, props: true },
-  { path: "/profile/:username", component: ProfilePage, props: true }
+  { name: "home", path: "/", component: HomePage },
+  { name: "login", path: "/login", component: LoginPage },
+  { name: "register", path: "/register", component: RegisterPage },
+  { name: "settings", path: "/settings", component: SettingsPage },
+  {
+    name: "editor",
+    path: "/editor/:slug?",
+    component: EditorPage,
+    props: true
+  },
+  {
+    name: "article",
+    path: "/article/:slug",
+    component: ArticlePage,
+    props: true
+  },
+  {
+    name: "profile",
+    path: "/profile/:username",
+    component: ProfilePage,
+    props: true
+  }
 ];
 
 export const router = createRouter({

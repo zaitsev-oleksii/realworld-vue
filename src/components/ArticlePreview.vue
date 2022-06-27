@@ -1,16 +1,17 @@
 <template>
   <div class="article-preview">
     <div class="article-meta">
-      <router-link :to="`/profile/${$props.author.username}`"
+      <router-link
+        :to="{ name: 'profile', params: { username: author.username } }"
         ><img :src="$props.author.image || MISSING_PROFILE_IMAGE_URL"
       /></router-link>
       <div class="info">
         <router-link
-          :to="`/profile/${$props.author.username}`"
+          :to="{ name: 'profile', params: { username: author.username } }"
           class="author"
-          >{{ $props.author.username }}</router-link
+          >{{ author.username }}</router-link
         >
-        <span class="date">{{ $props.createdAt }}</span>
+        <span class="date">{{ createdAt }}</span>
       </div>
       <button
         class="btn btn-sm pull-xs-right"
@@ -23,14 +24,17 @@
         <i class="ion-heart"></i> {{ favoritesCount }}
       </button>
     </div>
-    <router-link :to="`/article/${$props.slug}`" class="preview-link">
+    <router-link
+      :to="{ name: 'article', params: { slug: slug } }"
+      class="preview-link"
+    >
       <h1>{{ $props.title }}</h1>
       <p>{{ $props.description }}</p>
       <span>Read more...</span>
-      <ul class="tag-list" v-if="$props.tags.length > 0">
+      <ul class="tag-list" v-if="tags.length > 0">
         <li
           class="tag-default tag-pill tag-outline"
-          v-for="tag in $props.tags"
+          v-for="tag in tags"
           :key="tag"
         >
           {{ tag }}

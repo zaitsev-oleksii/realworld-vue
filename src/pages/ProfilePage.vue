@@ -9,7 +9,7 @@
             <p>
               {{ profile.bio }}
             </p>
-            <router-link to="/settings" v-if="isCurrentUserProfile">
+            <router-link :to="{ name: 'settings' }" v-if="isCurrentUserProfile">
               <button class="btn btn-sm btn-outline-secondary">
                 <i class="ion-gear-a"></i>
                 &nbsp; Edit Profile Settings
