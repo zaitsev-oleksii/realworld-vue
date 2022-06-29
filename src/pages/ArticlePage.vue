@@ -6,127 +6,34 @@
         <div class="container">
           <h1>{{ article.title }}</h1>
 
-          <div class="article-meta">
-            <router-link
-              :to="{
-                name: 'profile',
-                params: { username: article.author.username }
-              }"
-              ><img :src="article.author.image || MISSING_PROFILE_IMAGE_URL"
-            /></router-link>
-            <div class="info">
-              <router-link
-                :to="{
-                  name: 'profile',
-                  params: { username: article.author.username }
-                }"
-                class="author"
-                >{{ article.author.username }}</router-link
-              >
-              <span class="date">{{ article.createdAt }}</span>
-            </div>
-            <template v-if="!isCurrentUserArticle">
-              <follow-button
-                v-if="following !== null"
-                :username="article.author.username"
-                :following="following"
-                @click="handleFollow"
-              />
-              &nbsp;&nbsp;
-              <button
-                class="btn btn-sm btn-outline-primary"
-                @click="handleFavorite"
-              >
-                <i class="ion-heart"></i>
-                &nbsp; {{ !favorited ? "Favorite" : "Unfavorite" }} Post
-                <span class="counter">({{ article.favoritesCount }})</span>
-              </button>
-            </template>
-            <template v-if="isCurrentUserArticle">
-              <router-link
-                class="btn btn-outline-secondary btn-sm"
-                :to="{ name: 'editor', params: { slug: article.slug } }"
-              >
-                <i class="ion-edit"></i> Edit Article
-              </router-link>
-              <button
-                class="btn btn-outline-danger btn-sm"
-                @click="handleDeleteArticle"
-              >
-                <i class="ion-trash-a"></i> Delete Article
-              </button>
-            </template>
-          </div>
+          <article-meta
+            :articleSlug="article.slug"
+            :authorUsername="article.author.username"
+            :authorImage="article.author.image"
+            :createdAt="article.createdAt"
+          />
         </div>
       </div>
 
       <div class="container page">
         <div class="row article-content">
           <div class="col-md-12">
-            {{ article.body }}
+            <div>
+              {{ article.body }}
+            </div>
+            <tag-list class="article-tag-list" :tags="article.tagList" />
           </div>
         </div>
 
         <hr />
 
         <div class="article-actions">
-          <div class="article-meta">
-            <router-link
-              :to="{
-                name: 'profile',
-                params: { username: article.author.username }
-              }"
-              ><img :src="article.author.image"
-            /></router-link>
-            <div class="info">
-              <router-link
-                :to="{
-                  name: 'profile',
-                  params: { username: article.author.username }
-                }"
-                class="author"
-                >{{ article.author.username }}</router-link
-              >
-              <span class="date">{{ article.createdAt }}</span>
-            </div>
-
-            <template v-if="!isCurrentUserArticle">
-              <follow-button
-                v-if="following !== null"
-                :username="article.author.username"
-                :following="following"
-                @click="handleFollow"
-              />
-              &nbsp;
-              <button
-                class="btn btn-sm btn-outline-primary"
-                @click="handleFavorite"
-              >
-                <i class="ion-heart"></i>
-                &nbsp;
-                <span class="counter"
-                  >{{ !favorited ? "Favorite" : "Unfavorite" }} Post ({{
-                    article.favoritesCount
-                  }})</span
-                >
-              </button>
-            </template>
-
-            <template v-if="isCurrentUserArticle">
-              <router-link
-                class="btn btn-outline-secondary btn-sm"
-                :to="{ name: 'editor', params: { slug: article.slug } }"
-              >
-                <i class="ion-edit"></i> Edit Article
-              </router-link>
-              <button
-                class="btn btn-outline-danger btn-sm"
-                @click="handleDeleteArticle"
-              >
-                <i class="ion-trash-a"></i> Delete Article
-              </button>
-            </template>
-          </div>
+          <article-meta
+            :articleSlug="article.slug"
+            :authorUsername="article.author.username"
+            :authorImage="article.author.image"
+            :createdAt="article.createdAt"
+          />
         </div>
 
         <div class="row">
@@ -134,7 +41,7 @@
             <comment-form
               v-if="isAuthorized"
               :articleSlug="article.slug"
-              @new-comment="setComments"
+              @new-comment="addComment"
             />
             <template v-else>
               <span>
@@ -152,7 +59,7 @@
                 :author="comment.author"
                 :createdAt="comment.createdAt"
                 :body="comment.body"
-                @comment-deleted="setComments"
+                @delete-comment="(commentId) => deleteComment(commentId)"
               />
             </template>
           </div>
@@ -170,20 +77,24 @@ import { useRouter } from "vue-router";
 import articlesAPI from "../api/articles";
 import commentsAPI from "../api/comments";
 
+import ArticleMeta from "../components/ArticleMeta.vue";
+
 import LoadingSpinner from "../components/LoadingSpinner.vue";
-import FollowButton from "../components/FollowButton.vue";
+import TagList from "../components/TagList.vue";
 import CommentForm from "../components/CommentForm.vue";
 import CommentCard from "../components/CommentCard.vue";
 
-import useFavoriteArticle from "../composables/favorite-article";
-import useFollowProfile from "../composables/follow-profile";
 import useLoading from "../composables/loading";
-
-import { MISSING_PROFILE_IMAGE_URL } from "../config";
 
 export default {
   name: "ArticlePage",
-  components: { LoadingSpinner, FollowButton, CommentForm, CommentCard },
+  components: {
+    ArticleMeta,
+    LoadingSpinner,
+    TagList,
+    CommentForm,
+    CommentCard
+  },
   props: {
     slug: {
       type: String,
@@ -197,13 +108,6 @@ export default {
     const isAuthorized = computed(() => store.getters.isAuthorized);
 
     const article = ref(null);
-    const isCurrentUserArticle = computed(
-      () => store.state.user.username === article.value?.author.username
-    );
-    const handleDeleteArticle = async () => {
-      await articlesAPI.deleteArticle(article.value.slug);
-      router.push("/");
-    };
 
     const [{ isLoading }, { start: startLoading, stop: stopLoading }] =
       useLoading(true);
@@ -218,39 +122,48 @@ export default {
     };
 
     const comments = ref([]);
-    const setComments = async () => {
+    const refreshComments = async () => {
       const commentsData = (await commentsAPI.getComments(props.slug)).data;
       comments.value = commentsData;
+    };
+    const addComment = async (commentText) => {
+      await commentsAPI.createComment({
+        slug: props.slug,
+        commentText: commentText
+      });
+      refreshComments();
+    };
+    const deleteComment = async (commentId) => {
+      await commentsAPI.deleteComment({
+        slug: props.slug,
+        id: commentId
+      });
+      refreshComments();
     };
     const displayedComments = computed(() => comments.value.slice().reverse());
 
     onMounted(async () => {
       startLoading();
       await setArticle();
-      await setComments();
+      await refreshComments();
       stopLoading();
     });
-
-    const [following, handleFollow] = useFollowProfile({
-      articleSlug: props.slug
-    });
-
-    const [favorited, handleFavorite] = useFavoriteArticle(props.slug);
 
     return {
       article,
       isLoading,
-      isCurrentUserArticle,
-      handleDeleteArticle,
       displayedComments,
-      setComments,
-      isAuthorized,
-      following,
-      handleFollow,
-      favorited,
-      handleFavorite,
-      MISSING_PROFILE_IMAGE_URL
+      addComment,
+      deleteComment,
+      refreshComments,
+      isAuthorized
     };
   }
 };
 </script>
+
+<style scoped>
+.article-tag-list {
+  margin-top: 25px;
+}
+</style>

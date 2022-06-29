@@ -22,15 +22,15 @@ export const getComments = (slug) => {
     .catch((err) => ({ error: err.response.data.errors }));
 };
 
-export const createComment = (slug, commentData) => {
+export const createComment = ({ slug, commentText }) => {
   const url = COMMENTS_PATH.replace(":slug", encodeURIComponent(slug));
   return instance
-    .post(url, commentData)
+    .post(url, { comment: { body: commentText } })
     .then((res) => ({ error: null, data: res.data.comment }))
     .catch((err) => ({ error: err.response.data.errors }));
 };
 
-export const deleteComment = (slug, id) => {
+export const deleteComment = ({ slug, id }) => {
   const url = DELETE_COMMENT_PATH.replace(
     ":slug",
     encodeURIComponent(slug)
