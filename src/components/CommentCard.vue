@@ -33,8 +33,6 @@
 import { computed } from "vue";
 import { useStore } from "vuex";
 
-import commentsAPI from "../api/comments";
-
 import { MISSING_PROFILE_IMAGE_URL } from "../config";
 
 export default {
@@ -47,7 +45,7 @@ export default {
     body: String
   },
   emits: {
-    "comment-deleted": null
+    "delete-comment": null
   },
   setup(props, { emit }) {
     const store = useStore();
@@ -57,11 +55,7 @@ export default {
     );
 
     const handleDeleteComment = async () => {
-      await commentsAPI.deleteComment({
-        slug: props.articleSlug,
-        id: props.id
-      });
-      emit("comment-deleted");
+      emit("delete-comment", props.id);
     };
 
     return {
