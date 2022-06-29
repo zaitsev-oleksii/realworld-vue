@@ -39,15 +39,11 @@
           <div class="sidebar">
             <p>Popular Tags</p>
 
-            <div class="tag-list">
-              <a
-                class="tag-pill tag-default"
-                v-for="tag in tagList"
-                :key="tag"
-                @click="filterByTag(tag)"
-                >{{ tag }}</a
-              >
-            </div>
+            <tag-list
+              :tags="popularTags"
+              :theme="TAG_LIST_THEMES.dark"
+              @tag-selected="(tag) => filterByTag(tag)"
+            />
           </div>
         </div>
       </div>
@@ -59,21 +55,25 @@
 import { ref, onMounted } from "vue";
 import { useStore } from "vuex";
 
+import ArticleFeed from "../components/ArticleFeed.vue";
+import TagList from "../components/TagList.vue";
+
 import articlesAPI from "../api/articles";
 
 import useTabs from "../composables/tabs";
 
-import ArticleFeed from "../components/ArticleFeed.vue";
+import { TAG_LIST_THEMES } from "../config";
 
 export default {
   name: "HomePage",
+  components: { TagList },
   setup() {
     const store = useStore();
 
-    const tagList = ref([]);
+    const popularTags = ref([]);
     onMounted(async () => {
       const tags = (await articlesAPI.getTags()).data;
-      tagList.value = tags;
+      popularTags.value = tags;
     });
 
     const tabsMeta = [
@@ -116,13 +116,14 @@ export default {
     };
 
     return {
-      tagList,
+      popularTags,
       accessibleTabs,
       currentTab,
       setCurrentTab,
       currentTabComponent,
       tabsMeta,
-      filterByTag
+      filterByTag,
+      TAG_LIST_THEMES
     };
   }
 };

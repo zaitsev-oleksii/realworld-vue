@@ -3,14 +3,16 @@
     <div class="article-meta">
       <router-link
         :to="{ name: 'profile', params: { username: author.username } }"
-        ><img :src="$props.author.image || MISSING_PROFILE_IMAGE_URL"
+      >
+        <img :src="$props.author.image || MISSING_PROFILE_IMAGE_URL"
       /></router-link>
       <div class="info">
         <router-link
           :to="{ name: 'profile', params: { username: author.username } }"
           class="author"
-          >{{ author.username }}</router-link
         >
+          {{ author.username }}
+        </router-link>
         <span class="date">{{ createdAt }}</span>
       </div>
       <button
@@ -31,26 +33,21 @@
       <h1>{{ $props.title }}</h1>
       <p>{{ $props.description }}</p>
       <span>Read more...</span>
-      <ul class="tag-list" v-if="tags.length > 0">
-        <li
-          class="tag-default tag-pill tag-outline"
-          v-for="tag in tags"
-          :key="tag"
-        >
-          {{ tag }}
-        </li>
-      </ul>
+      <tag-list :tags="tags" />
     </router-link>
   </div>
 </template>
 
 <script>
+import TagList from "./TagList.vue";
+
 import useFavoriteArticle from "../composables/favorite-article";
 
 import { MISSING_PROFILE_IMAGE_URL } from "../config";
 
 export default {
   name: "ArticlePreview",
+  components: { TagList },
   props: {
     slug: String,
     author: Object,
