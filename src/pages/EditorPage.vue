@@ -1,5 +1,6 @@
 <template>
-  <div class="editor-page">
+  <loading-spinner v-if="isLoading" />
+  <div class="editor-page" v-else>
     <div class="container page">
       <div class="row">
         <div class="col-md-10 offset-md-1 col-xs-12">
@@ -64,13 +65,18 @@
 </template>
 
 <script>
-import { ref, reactive, onMounted } from "vue";
+import { ref, reactive, onMounted, watch } from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
+
+import LoadingSpinner from "../components/LoadingSpinner.vue";
+import useLoading from "../composables/loading";
+
 import articlesAPI from "../api/articles";
 
 export default {
   name: "EditorPage",
+  components: { LoadingSpinner },
   props: {
     slug: {
       type: String,
@@ -90,14 +96,25 @@ export default {
 
     const tags = ref([]);
 
+    const resetForm = () => {
+      formData.title = "";
+      formData.description = "";
+      formData.body = "";
+      formData.tag = "";
+      tags.value = [];
+    };
+
+    const [{ isLoading }, { start: startLoading, stop: stopLoading }] =
+      useLoading(false);
+
     onMounted(async () => {
       if (!store.getters.isAuthorized) {
         router.push("/login");
         return;
       }
-      // if (route.params.slug !== "AAAB-57111") router.push("/editor/AAAB-57111");
 
       if (props.slug) {
+        startLoading();
         const articleData = (await articlesAPI.getArticle(props.slug)).data;
         if (articleData.author.username !== store.state.user.username) {
           router.push("/");
@@ -108,6 +125,7 @@ export default {
         formData.description = articleData.description;
         formData.body = articleData.body;
         tags.value = articleData.tagList;
+        stopLoading();
       }
     });
 
@@ -143,7 +161,10 @@ export default {
       router.push(`/article/${createdArticleData.slug}`);
     };
 
+    watch(() => props.slug, resetForm);
+
     return {
+      isLoading,
       formData,
       tags,
       addTag,

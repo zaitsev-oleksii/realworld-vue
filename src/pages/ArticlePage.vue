@@ -1,162 +1,165 @@
 <template>
-  <div class="article-page" v-if="article">
-    <div class="banner">
-      <div class="container">
-        <h1>{{ article.title }}</h1>
+  <loading-spinner v-if="isLoading" />
+  <template v-else>
+    <div class="article-page" v-if="article">
+      <div class="banner">
+        <div class="container">
+          <h1>{{ article.title }}</h1>
 
-        <div class="article-meta">
-          <router-link
-            :to="{
-              name: 'profile',
-              params: { username: article.author.username }
-            }"
-            ><img :src="article.author.image || MISSING_PROFILE_IMAGE_URL"
-          /></router-link>
-          <div class="info">
+          <div class="article-meta">
             <router-link
               :to="{
                 name: 'profile',
                 params: { username: article.author.username }
               }"
-              class="author"
-              >{{ article.author.username }}</router-link
-            >
-            <span class="date">{{ article.createdAt }}</span>
-          </div>
-          <template v-if="!isCurrentUserArticle">
-            <follow-button
-              v-if="following !== null"
-              :username="article.author.username"
-              :following="following"
-              @click="handleFollow"
-            />
-            &nbsp;&nbsp;
-            <button
-              class="btn btn-sm btn-outline-primary"
-              @click="handleFavorite"
-            >
-              <i class="ion-heart"></i>
-              &nbsp; {{ !favorited ? "Favorite" : "Unfavorite" }} Post
-              <span class="counter">({{ article.favoritesCount }})</span>
-            </button>
-          </template>
-          <template v-if="isCurrentUserArticle">
-            <router-link
-              class="btn btn-outline-secondary btn-sm"
-              :to="{ name: 'editor', params: { slug: article.slug } }"
-            >
-              <i class="ion-edit"></i> Edit Article
-            </router-link>
-            <button
-              class="btn btn-outline-danger btn-sm"
-              @click="handleDeleteArticle"
-            >
-              <i class="ion-trash-a"></i> Delete Article
-            </button>
-          </template>
-        </div>
-      </div>
-    </div>
-
-    <div class="container page">
-      <div class="row article-content">
-        <div class="col-md-12">
-          {{ article.body }}
-        </div>
-      </div>
-
-      <hr />
-
-      <div class="article-actions">
-        <div class="article-meta">
-          <router-link
-            :to="{
-              name: 'profile',
-              params: { username: article.author.username }
-            }"
-            ><img :src="article.author.image"
-          /></router-link>
-          <div class="info">
-            <router-link
-              :to="{
-                name: 'profile',
-                params: { username: article.author.username }
-              }"
-              class="author"
-              >{{ article.author.username }}</router-link
-            >
-            <span class="date">{{ article.createdAt }}</span>
-          </div>
-
-          <template v-if="!isCurrentUserArticle">
-            <follow-button
-              v-if="following !== null"
-              :username="article.author.username"
-              :following="following"
-              @click="handleFollow"
-            />
-            &nbsp;
-            <button
-              class="btn btn-sm btn-outline-primary"
-              @click="handleFavorite"
-            >
-              <i class="ion-heart"></i>
-              &nbsp;
-              <span class="counter"
-                >{{ !favorited ? "Favorite" : "Unfavorite" }} Post ({{
-                  article.favoritesCount
-                }})</span
+              ><img :src="article.author.image || MISSING_PROFILE_IMAGE_URL"
+            /></router-link>
+            <div class="info">
+              <router-link
+                :to="{
+                  name: 'profile',
+                  params: { username: article.author.username }
+                }"
+                class="author"
+                >{{ article.author.username }}</router-link
               >
-            </button>
-          </template>
-
-          <template v-if="isCurrentUserArticle">
-            <router-link
-              class="btn btn-outline-secondary btn-sm"
-              :to="{ name: 'editor', params: { slug: article.slug } }"
-            >
-              <i class="ion-edit"></i> Edit Article
-            </router-link>
-            <button
-              class="btn btn-outline-danger btn-sm"
-              @click="handleDeleteArticle"
-            >
-              <i class="ion-trash-a"></i> Delete Article
-            </button>
-          </template>
+              <span class="date">{{ article.createdAt }}</span>
+            </div>
+            <template v-if="!isCurrentUserArticle">
+              <follow-button
+                v-if="following !== null"
+                :username="article.author.username"
+                :following="following"
+                @click="handleFollow"
+              />
+              &nbsp;&nbsp;
+              <button
+                class="btn btn-sm btn-outline-primary"
+                @click="handleFavorite"
+              >
+                <i class="ion-heart"></i>
+                &nbsp; {{ !favorited ? "Favorite" : "Unfavorite" }} Post
+                <span class="counter">({{ article.favoritesCount }})</span>
+              </button>
+            </template>
+            <template v-if="isCurrentUserArticle">
+              <router-link
+                class="btn btn-outline-secondary btn-sm"
+                :to="{ name: 'editor', params: { slug: article.slug } }"
+              >
+                <i class="ion-edit"></i> Edit Article
+              </router-link>
+              <button
+                class="btn btn-outline-danger btn-sm"
+                @click="handleDeleteArticle"
+              >
+                <i class="ion-trash-a"></i> Delete Article
+              </button>
+            </template>
+          </div>
         </div>
       </div>
 
-      <div class="row">
-        <div class="col-xs-12 col-md-8 offset-md-2">
-          <comment-form
-            v-if="isAuthorized"
-            :articleSlug="article.slug"
-            @new-comment="setComments"
-          />
-          <template v-else>
-            <span>
-              <router-link :to="{ name: 'login' }">Sign in</router-link> or
-              <router-link :to="{ name: 'register' }">sign up</router-link> to
-              add comments on this article.
-            </span>
-          </template>
-          <template v-if="displayedComments.length > 0">
-            <comment-card
-              v-for="comment in displayedComments"
-              :key="comment.id"
+      <div class="container page">
+        <div class="row article-content">
+          <div class="col-md-12">
+            {{ article.body }}
+          </div>
+        </div>
+
+        <hr />
+
+        <div class="article-actions">
+          <div class="article-meta">
+            <router-link
+              :to="{
+                name: 'profile',
+                params: { username: article.author.username }
+              }"
+              ><img :src="article.author.image"
+            /></router-link>
+            <div class="info">
+              <router-link
+                :to="{
+                  name: 'profile',
+                  params: { username: article.author.username }
+                }"
+                class="author"
+                >{{ article.author.username }}</router-link
+              >
+              <span class="date">{{ article.createdAt }}</span>
+            </div>
+
+            <template v-if="!isCurrentUserArticle">
+              <follow-button
+                v-if="following !== null"
+                :username="article.author.username"
+                :following="following"
+                @click="handleFollow"
+              />
+              &nbsp;
+              <button
+                class="btn btn-sm btn-outline-primary"
+                @click="handleFavorite"
+              >
+                <i class="ion-heart"></i>
+                &nbsp;
+                <span class="counter"
+                  >{{ !favorited ? "Favorite" : "Unfavorite" }} Post ({{
+                    article.favoritesCount
+                  }})</span
+                >
+              </button>
+            </template>
+
+            <template v-if="isCurrentUserArticle">
+              <router-link
+                class="btn btn-outline-secondary btn-sm"
+                :to="{ name: 'editor', params: { slug: article.slug } }"
+              >
+                <i class="ion-edit"></i> Edit Article
+              </router-link>
+              <button
+                class="btn btn-outline-danger btn-sm"
+                @click="handleDeleteArticle"
+              >
+                <i class="ion-trash-a"></i> Delete Article
+              </button>
+            </template>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-xs-12 col-md-8 offset-md-2">
+            <comment-form
+              v-if="isAuthorized"
               :articleSlug="article.slug"
-              :id="comment.id"
-              :author="comment.author"
-              :createdAt="comment.createdAt"
-              :body="comment.body"
-              @comment-deleted="setComments"
+              @new-comment="setComments"
             />
-          </template>
+            <template v-else>
+              <span>
+                <router-link :to="{ name: 'login' }">Sign in</router-link> or
+                <router-link :to="{ name: 'register' }">sign up</router-link> to
+                add comments on this article.
+              </span>
+            </template>
+            <template v-if="displayedComments.length > 0">
+              <comment-card
+                v-for="comment in displayedComments"
+                :key="comment.id"
+                :articleSlug="article.slug"
+                :id="comment.id"
+                :author="comment.author"
+                :createdAt="comment.createdAt"
+                :body="comment.body"
+                @comment-deleted="setComments"
+              />
+            </template>
+          </div>
         </div>
       </div>
     </div>
-  </div>
+  </template>
 </template>
 
 <script>
@@ -167,18 +170,20 @@ import { useRouter } from "vue-router";
 import articlesAPI from "../api/articles";
 import commentsAPI from "../api/comments";
 
+import LoadingSpinner from "../components/LoadingSpinner.vue";
 import FollowButton from "../components/FollowButton.vue";
 import CommentForm from "../components/CommentForm.vue";
 import CommentCard from "../components/CommentCard.vue";
 
 import useFavoriteArticle from "../composables/favorite-article";
 import useFollowProfile from "../composables/follow-profile";
+import useLoading from "../composables/loading";
 
 import { MISSING_PROFILE_IMAGE_URL } from "../config";
 
 export default {
   name: "ArticlePage",
-  components: { FollowButton, CommentForm, CommentCard },
+  components: { LoadingSpinner, FollowButton, CommentForm, CommentCard },
   props: {
     slug: {
       type: String,
@@ -200,6 +205,9 @@ export default {
       router.push("/");
     };
 
+    const [{ isLoading }, { start: startLoading, stop: stopLoading }] =
+      useLoading(true);
+
     const setArticle = async () => {
       const articleData = (await articlesAPI.getArticle(props.slug)).data;
       if (!articleData) {
@@ -210,15 +218,17 @@ export default {
     };
 
     const comments = ref([]);
-    const displayedComments = computed(() => comments.value.slice().reverse());
     const setComments = async () => {
       const commentsData = (await commentsAPI.getComments(props.slug)).data;
       comments.value = commentsData;
     };
+    const displayedComments = computed(() => comments.value.slice().reverse());
 
     onMounted(async () => {
-      setArticle();
-      setComments();
+      startLoading();
+      await setArticle();
+      await setComments();
+      stopLoading();
     });
 
     const [following, handleFollow] = useFollowProfile({
@@ -229,6 +239,7 @@ export default {
 
     return {
       article,
+      isLoading,
       isCurrentUserArticle,
       handleDeleteArticle,
       displayedComments,

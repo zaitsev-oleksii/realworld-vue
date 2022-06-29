@@ -1,30 +1,34 @@
 <template>
-  <template v-if="articles.length > 0">
-    <article-list :articles="articles" />
-    <button
-      class="btn btn-default"
-      v-if="!isFirstPage && buttonsVisible"
-      @click="goToPrevPage"
-    >
-      <i class="ion-android-arrow-back"></i> Previous
-    </button>
-    <button
-      class="btn btn-default"
-      v-if="!isLastPage && buttonsVisible"
-      @click="goToNextPage"
-    >
-      Next <i class="ion-android-arrow-forward"></i>
-    </button>
+  <div class="article-preview" v-if="isLoading">{{ loadingMessage }}</div>
+  <template v-else>
+    <template v-if="articles.length > 0">
+      <article-list :articles="articles" />
+      <button
+        class="btn btn-default"
+        v-if="!isFirstPage && buttonsVisible"
+        @click="goToPrevPage"
+      >
+        <i class="ion-android-arrow-back"></i> Previous
+      </button>
+      <button
+        class="btn btn-default"
+        v-if="!isLastPage && buttonsVisible"
+        @click="goToNextPage"
+      >
+        Next <i class="ion-android-arrow-forward"></i>
+      </button>
+    </template>
+    <div v-else>No articles here... yet</div>
   </template>
-  <div v-else>No articles here... yet</div>
 </template>
 
 <script>
 import { ref, onMounted, computed, watch } from "vue";
-// import { useStore } from "vuex";
 
 import ArticleList from "./ArticleList.vue";
+
 import usePagination from "../composables/pagination";
+import useLoading from "../composables/loading";
 
 import { ARTICLES_PER_PAGE } from "../config";
 
@@ -36,9 +40,12 @@ export default {
     filterParams: Object
   },
   setup(props) {
-    // const store = useStore();
-
     const articles = ref([]);
+
+    const [
+      { isLoading, message: loadingMessage },
+      { start: startLoading, stop: stopLoading }
+    ] = useLoading(true, "Loading articles...");
 
     /* 
       Roundabout since we cannot get total articles count
@@ -88,21 +95,27 @@ export default {
       prefetchedArticles.value = prefetchedArticlesData;
     };
 
-    onMounted(() => {
-      setArticlesData();
-      setPrefetchedArticlesData();
+    onMounted(async () => {
+      startLoading();
+      await setArticlesData();
+      await setPrefetchedArticlesData();
       buttonsVisible.value = true;
+      stopLoading();
     });
 
     watch(currentPage, async () => {
+      startLoading();
       buttonsVisible.value = false;
       await setArticlesData();
       await setPrefetchedArticlesData();
       buttonsVisible.value = true;
+      stopLoading();
     });
 
     return {
       articles,
+      isLoading,
+      loadingMessage,
       goToPrevPage,
       goToNextPage,
       currentPage,

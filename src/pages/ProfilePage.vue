@@ -1,13 +1,14 @@
 <template>
-  <div class="profile-page" v-if="profile">
+  <loading-spinner v-if="isLoading" />
+  <div class="profile-page" v-else>
     <div class="user-info">
       <div class="container">
         <div class="row">
           <div class="col-xs-12 col-md-10 offset-md-1">
-            <img :src="profile.image" class="user-img" />
-            <h4>{{ profile.username }}</h4>
+            <img :src="profile?.image" class="user-img" />
+            <h4>{{ profile?.username }}</h4>
             <p>
-              {{ profile.bio }}
+              {{ profile?.bio }}
             </p>
             <router-link :to="{ name: 'settings' }" v-if="isCurrentUserProfile">
               <button class="btn btn-sm btn-outline-secondary">
@@ -68,12 +69,15 @@ import articlesAPI from "../api/articles";
 import FollowButton from "../components/FollowButton.vue";
 import ArticleFeed from "../components/ArticleFeed.vue";
 
+import LoadingSpinner from "../components/LoadingSpinner.vue";
+
 import useFollowProfile from "../composables/follow-profile";
 import useTabs from "../composables/tabs";
+import useLoading from "../composables/loading";
 
 export default {
   name: "ProfilePage",
-  components: { FollowButton, ArticleFeed },
+  components: { FollowButton, ArticleFeed, LoadingSpinner },
   props: {
     username: {
       type: String,
@@ -85,12 +89,15 @@ export default {
     const router = useRouter();
 
     const profile = ref(null);
-
     const isCurrentUserProfile = computed(
       () => store.state.user.username === props.username
     );
 
+    const [{ isLoading }, { start: startLoading, stop: stopLoading }] =
+      useLoading(true);
+
     const setProfileData = async () => {
+      startLoading();
       const profileData = (await profileAPI.getProfile(props.username)).data;
       if (!profileData) {
         router.push("/");
@@ -98,6 +105,7 @@ export default {
       }
 
       profile.value = profileData;
+      stopLoading();
     };
 
     const tabsMeta = [
@@ -134,6 +142,7 @@ export default {
     return {
       profile,
       isCurrentUserProfile,
+      isLoading,
       accessibleTabs,
       currentTab,
       currentTabComponent,
