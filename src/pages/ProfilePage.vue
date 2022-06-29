@@ -29,29 +29,7 @@
     <div class="container">
       <div class="row">
         <div class="col-xs-12 col-md-10 offset-md-1">
-          <div class="feed-toggle">
-            <ul class="nav nav-pills outline-active">
-              <li
-                class="nav-item"
-                v-for="tab in accessibleTabs"
-                :key="tab.name"
-              >
-                <a
-                  class="nav-link"
-                  :class="{
-                    active: currentTab.name === tab.name
-                  }"
-                  @click="setCurrentTab(tab.name)"
-                  >{{ tab.display }}</a
-                >
-              </li>
-            </ul>
-          </div>
-          <component
-            :is="currentTabComponent"
-            v-bind="currentTab.props"
-            :key="currentTab"
-          />
+          <u-tabs :tabsMeta="tabsMeta" :isAuthorized="isAuthorized" />
         </div>
       </div>
     </div>
@@ -67,17 +45,17 @@ import profileAPI from "../api/profile";
 import articlesAPI from "../api/articles";
 
 import FollowButton from "../components/FollowButton.vue";
+import UTabs from "../components/UTabs.vue";
 import ArticleFeed from "../components/ArticleFeed.vue";
 
 import LoadingSpinner from "../components/LoadingSpinner.vue";
 
 import useFollowProfile from "../composables/follow-profile";
-import useTabs from "../composables/tabs";
 import useLoading from "../composables/loading";
 
 export default {
   name: "ProfilePage",
-  components: { FollowButton, ArticleFeed, LoadingSpinner },
+  components: { FollowButton, LoadingSpinner, UTabs },
   props: {
     username: {
       type: String,
@@ -129,9 +107,6 @@ export default {
       }
     ];
 
-    const { accessibleTabs, currentTab, currentTabComponent, setCurrentTab } =
-      useTabs(tabsMeta, store.getters.isAuthorized);
-
     onMounted(setProfileData);
     watch(() => props.username, setProfileData);
 
@@ -143,11 +118,9 @@ export default {
       profile,
       isCurrentUserProfile,
       isLoading,
-      accessibleTabs,
-      currentTab,
-      currentTabComponent,
-      setCurrentTab,
       following,
+      tabsMeta,
+      isAuthorized: computed(() => store.getters.isAuthorized),
       handleFollow
     };
   }

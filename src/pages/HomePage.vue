@@ -10,29 +10,7 @@
     <div class="container page">
       <div class="row">
         <div class="col-md-9">
-          <div class="feed-toggle">
-            <ul class="nav nav-pills outline-active">
-              <li
-                class="nav-item"
-                v-for="tab in accessibleTabs"
-                :key="tab.name"
-              >
-                <a
-                  class="nav-link"
-                  :class="{
-                    active: currentTab.name === tab.name
-                  }"
-                  @click="setCurrentTab(tab.name)"
-                  >{{ tab.display }}</a
-                >
-              </li>
-            </ul>
-          </div>
-          <component
-            :is="currentTabComponent"
-            v-bind="currentTab.props"
-            :key="currentTab"
-          />
+          <u-tabs :tabsMeta="tabsMeta" :isAuthorized="isAuthorized" />
         </div>
 
         <div class="col-md-3">
@@ -52,7 +30,7 @@
 </template>
 
 <script>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed, markRaw } from "vue";
 import { useStore } from "vuex";
 
 import ArticleFeed from "../components/ArticleFeed.vue";
@@ -60,13 +38,12 @@ import TagList from "../components/TagList.vue";
 
 import articlesAPI from "../api/articles";
 
-import useTabs from "../composables/tabs";
-
 import { TAG_LIST_THEMES } from "../config";
+import UTabs from "../components/UTabs.vue";
 
 export default {
   name: "HomePage",
-  components: { TagList },
+  components: { TagList, UTabs },
   setup() {
     const store = useStore();
 
@@ -76,51 +53,39 @@ export default {
       popularTags.value = tags;
     });
 
-    const tabsMeta = [
+    const tabsMeta = ref([
       {
         name: "Personal",
         display: "Personal Feed",
-        component: ArticleFeed,
+        component: markRaw(ArticleFeed),
         requiresAuth: true,
-        props: { api: articlesAPI.getArticlesFeed },
-        onSelect: () => removeTab("FilteredFeed")
+        props: { api: articlesAPI.getArticlesFeed }
       },
       {
         name: "Global",
         display: "Global Feed",
-        component: ArticleFeed,
-        props: { api: articlesAPI.getArticles, filterParams: {} },
-        onSelect: () => removeTab("FilteredFeed")
+        component: markRaw(ArticleFeed),
+        props: { api: articlesAPI.getArticles, filterParams: {} }
       }
-    ];
-
-    const {
-      accessibleTabs,
-      currentTab,
-      currentTabComponent,
-      setCurrentTab,
-      addTab,
-      removeTab
-    } = useTabs(tabsMeta, store.getters.isAuthorized);
+    ]);
 
     const filterByTag = (tag) => {
       const filteredFeedTabMeta = {
         name: `FilteredFeed`,
         display: `#${tag}`,
         component: ArticleFeed,
-        props: { api: articlesAPI.getArticles, filterParams: { tag: tag } }
+        props: { api: articlesAPI.getArticles, filterParams: { tag: tag } },
+        autoSelected: true
       };
-      removeTab("FilteredFeed");
-      addTab(filteredFeedTabMeta);
-      setCurrentTab("FilteredFeed");
+      tabsMeta.value = tabsMeta.value.filter(
+        (tab) => tab.name !== "FilteredFeed"
+      );
+      tabsMeta.value.push(filteredFeedTabMeta);
     };
 
     return {
       popularTags,
-      accessibleTabs,
-      currentTab,
-      setCurrentTab,
-      currentTabComponent,
+      isAuthorized: computed(() => store.getters.isAuthorized),
       tabsMeta,
       filterByTag,
       TAG_LIST_THEMES
