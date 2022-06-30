@@ -18,7 +18,7 @@
         Next <i class="ion-android-arrow-forward"></i>
       </button>
     </template>
-    <div v-else>No articles here... yet</div>
+    <div class="article-preview" v-else>No articles here... yet</div>
   </template>
 </template>
 

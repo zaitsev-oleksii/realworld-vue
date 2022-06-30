@@ -72,8 +72,7 @@
 import { reactive, computed } from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
-import authAPI from "../api/auth";
-import { LOGOUT } from "../store/action-types";
+import { LOGOUT, UPDATE_USER_DATA } from "../store/action-types";
 export default {
   name: "SettingsPage",
   setup() {
@@ -92,12 +91,8 @@ export default {
     });
 
     const handleSubmitUpdates = async () => {
-      const newUserData = await authAPI.updateCurrentUser({
-        userData: userData
-      });
-
-      store.dispatch("setUser", newUserData);
-      router.push({ path: `/profile/${newUserData.username}` });
+      const updatedUserData = await store.dispatch(UPDATE_USER_DATA, userData);
+      router.push({ path: `/profile/${updatedUserData.username}` });
     };
 
     const handleLogout = async () => {

@@ -3,7 +3,7 @@ import { createStore } from "vuex";
 import tokenService from "../token-service";
 
 import { SET_USER, CLEAR_USER, SET_ERRORS } from "./mutation-types";
-import { LOGIN, LOGOUT, VERIFY_AUTH } from "./action-types";
+import { LOGIN, LOGOUT, UPDATE_USER_DATA, VERIFY_AUTH } from "./action-types";
 
 import profileAPI from "@/api/profile";
 import authAPI from "@/api/auth";
@@ -68,12 +68,38 @@ export const store = createStore({
     async [LOGOUT]({ commit }) {
       commit(CLEAR_USER);
     },
+    async [UPDATE_USER_DATA]({ commit }, userData) {
+      const { error, data: updatedUserData } = await authAPI.updateCurrentUser(
+        userData
+      );
+      if (error) {
+        commit(SET_ERRORS, error);
+      } else {
+        const { email, username, token } = updatedUserData;
+        const profile = (await profileAPI.getProfile(username)).data;
+        commit(SET_USER, {
+          email,
+          username,
+          bio: profile.bio,
+          token,
+          image: profile.image
+        });
+        return {
+          email,
+          username,
+          bio: profile.bio,
+          token,
+          image: profile.image
+        };
+      }
+    },
     async [VERIFY_AUTH]({ commit }) {
       const token = tokenService.getToken();
       if (token) {
         const { error, data: userData } = await authAPI.getCurrentUser();
         if (error) {
           commit(SET_ERRORS, error);
+          tokenService.destroyToken();
         } else {
           const { email, username } = userData;
           const profile = (await profileAPI.getProfile(username)).data;
