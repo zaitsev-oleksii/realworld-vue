@@ -1,12 +1,12 @@
-import { ref, computed } from "vue";
+import { ref, computed, inject } from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
-import articlesAPI from "../api/articles";
 
 const useFavoriteArticle = (slug) => {
   const store = useStore();
   const router = useRouter();
   const isAuthorized = computed(() => store.getters.isAuthorized);
+  const articlesAPI = inject("articlesAPI");
 
   const favorited = ref(null);
   const favoritesCount = ref(null);

@@ -37,12 +37,9 @@
 </template>
 
 <script>
-import { ref, computed, watch, onMounted } from "vue";
+import { ref, computed, watch, onMounted, inject, markRaw } from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
-
-import profileAPI from "../api/profile";
-import articlesAPI from "../api/articles";
 
 import FollowButton from "../components/FollowButton.vue";
 import UTabs from "../components/UTabs.vue";
@@ -65,6 +62,8 @@ export default {
   setup(props) {
     const store = useStore();
     const router = useRouter();
+    const profileAPI = inject("profileAPI");
+    const articlesAPI = inject("articlesAPI");
 
     const profile = ref(null);
     const isCurrentUserProfile = computed(
@@ -86,11 +85,11 @@ export default {
       stopLoading();
     };
 
-    const tabsMeta = [
+    const tabsMeta = ref([
       {
         name: "UsersArticles",
         display: "My Articles",
-        component: ArticleFeed,
+        component: markRaw(ArticleFeed),
         props: {
           api: articlesAPI.getArticles,
           filterParams: { author: props.username }
@@ -99,13 +98,13 @@ export default {
       {
         name: "FavoritedArticles",
         display: "Favorited Articles",
-        component: ArticleFeed,
+        component: markRaw(ArticleFeed),
         props: {
           api: articlesAPI.getArticles,
           filterParams: { favoritedBy: props.username }
         }
       }
-    ];
+    ]);
 
     onMounted(setProfileData);
     watch(() => props.username, setProfileData);

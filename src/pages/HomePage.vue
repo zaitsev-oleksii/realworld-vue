@@ -30,13 +30,11 @@
 </template>
 
 <script>
-import { ref, onMounted, computed, markRaw } from "vue";
+import { ref, onMounted, computed, inject, markRaw } from "vue";
 import { useStore } from "vuex";
 
 import ArticleFeed from "../components/ArticleFeed.vue";
 import TagList from "../components/TagList.vue";
-
-import articlesAPI from "../api/articles";
 
 import { TAG_LIST_THEMES } from "../config";
 import UTabs from "../components/UTabs.vue";
@@ -46,6 +44,7 @@ export default {
   components: { TagList, UTabs },
   setup() {
     const store = useStore();
+    const articlesAPI = inject("articlesAPI");
 
     const popularTags = ref([]);
     onMounted(async () => {

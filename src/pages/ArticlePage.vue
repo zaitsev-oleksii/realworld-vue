@@ -41,7 +41,7 @@
             <comment-form
               v-if="isAuthorized"
               :articleSlug="article.slug"
-              @new-comment="addComment"
+              @new-comment="(commentText) => addComment(commentText)"
             />
             <template v-else>
               <span>
@@ -70,12 +70,9 @@
 </template>
 
 <script>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, inject } from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
-
-import articlesAPI from "../api/articles";
-import commentsAPI from "../api/comments";
 
 import ArticleMeta from "../components/ArticleMeta.vue";
 
@@ -104,6 +101,8 @@ export default {
   setup(props) {
     const store = useStore();
     const router = useRouter();
+    const articlesAPI = inject("articlesAPI");
+    const commentsAPI = inject("commentsAPI");
 
     const isAuthorized = computed(() => store.getters.isAuthorized);
 

@@ -65,14 +65,12 @@
 </template>
 
 <script>
-import { ref, reactive, onMounted, watch } from "vue";
+import { ref, reactive, onMounted, watch, inject } from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 
 import LoadingSpinner from "../components/LoadingSpinner.vue";
 import useLoading from "../composables/loading";
-
-import articlesAPI from "../api/articles";
 
 export default {
   name: "EditorPage",
@@ -86,6 +84,7 @@ export default {
   setup(props) {
     const store = useStore();
     const router = useRouter();
+    const articlesAPI = inject("articlesAPI");
 
     const formData = reactive({
       title: "",

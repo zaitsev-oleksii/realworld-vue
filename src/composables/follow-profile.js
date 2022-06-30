@@ -1,12 +1,13 @@
-import { ref, computed } from "vue";
+import { ref, computed, inject } from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
-import profileAPI from "../api/profile";
-import articleAPI from "../api/articles";
 
 const useFollowProfile = ({ username, articleSlug }) => {
   const store = useStore();
   const router = useRouter();
+  const profileAPI = inject("profileAPI");
+  const articlesAPI = inject("articlesAPI");
+
   const isAuthorized = computed(() => store.getters.isAuthorized);
 
   const following = ref(null);
@@ -15,7 +16,7 @@ const useFollowProfile = ({ username, articleSlug }) => {
 
   const execute = async () => {
     if (articleSlug) {
-      const articleData = (await articleAPI.getArticle(articleSlug)).data;
+      const articleData = (await articlesAPI.getArticle(articleSlug)).data;
       following.value = articleData.author.following;
       profile = articleData.author.username;
     }
