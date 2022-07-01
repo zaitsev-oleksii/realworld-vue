@@ -11,7 +11,7 @@ const useFavoriteArticle = (slug) => {
   const favorited = ref(null);
   const favoritesCount = ref(null);
 
-  const execute = async () => {
+  const checkFavoritedStatus = async () => {
     const articleData = (await articlesAPI.getArticle(slug)).data;
     favorited.value = articleData.favorited;
     favoritesCount.value = articleData.favoritesCount;
@@ -35,7 +35,7 @@ const useFavoriteArticle = (slug) => {
     favoritesCount.value = articleData.favoritesCount;
   };
 
-  execute();
+  checkFavoritedStatus();
 
   return [favorited, handleFavorite, favoritesCount];
 };

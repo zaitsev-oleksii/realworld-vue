@@ -50,7 +50,7 @@
 </template>
 
 <script>
-import { computed } from "vue";
+import { computed, inject } from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 
@@ -58,8 +58,6 @@ import FollowButton from "../components/FollowButton.vue";
 
 import useFavoriteArticle from "../composables/favorite-article";
 import useFollowProfile from "../composables/follow-profile";
-
-import articlesAPI from "../api/articles";
 
 import { MISSING_PROFILE_IMAGE_URL } from "../config";
 
@@ -75,6 +73,7 @@ export default {
   setup(props) {
     const store = useStore();
     const router = useRouter();
+    const articlesAPI = inject("articlesAPI");
 
     const isCurrentUserArticle = computed(
       () => store.state.user.username === props.authorUsername
@@ -85,9 +84,7 @@ export default {
       router.push("/");
     };
 
-    const [following, handleFollow] = useFollowProfile({
-      articleSlug: props.articleSlug
-    });
+    const [following, handleFollow] = useFollowProfile(props.authorUsername);
 
     const [favorited, handleFavorite, favoritesCount] = useFavoriteArticle(
       props.articleSlug

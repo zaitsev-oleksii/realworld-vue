@@ -107,7 +107,32 @@ export default {
     ]);
 
     onMounted(setProfileData);
-    watch(() => props.username, setProfileData);
+    watch(
+      () => props.username,
+      () => {
+        setProfileData();
+        tabsMeta.value = [
+          {
+            name: "UsersArticles",
+            display: "My Articles",
+            component: markRaw(ArticleFeed),
+            props: {
+              api: articlesAPI.getArticles,
+              filterParams: { author: props.username }
+            }
+          },
+          {
+            name: "FavoritedArticles",
+            display: "Favorited Articles",
+            component: markRaw(ArticleFeed),
+            props: {
+              api: articlesAPI.getArticles,
+              filterParams: { favoritedBy: props.username }
+            }
+          }
+        ];
+      }
+    );
 
     const [following, handleFollow] = useFollowProfile({
       username: props.username

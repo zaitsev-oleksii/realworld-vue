@@ -2,33 +2,22 @@ import { ref, computed, inject } from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 
-const useFollowProfile = ({ username, articleSlug }) => {
+const useFollowProfile = (username) => {
   const store = useStore();
   const router = useRouter();
   const profileAPI = inject("profileAPI");
-  const articlesAPI = inject("articlesAPI");
 
   const isAuthorized = computed(() => store.getters.isAuthorized);
 
   const following = ref(null);
 
-  let profile = null;
-
-  const execute = async () => {
-    if (articleSlug) {
-      const articleData = (await articlesAPI.getArticle(articleSlug)).data;
-      following.value = articleData.author.following;
-      profile = articleData.author.username;
-    }
-    if (username) {
-      const profileData = (await profileAPI.getProfile(username)).data;
-      following.value = profileData.following;
-      profile = username;
-    }
+  const checkFollowingStatus = async () => {
+    const profileData = (await profileAPI.getProfile(username)).data;
+    following.value = profileData.following;
   };
 
   const handleFollow = async () => {
-    if (following.value === null || !profile) return;
+    if (following.value === null || !username) return;
 
     if (!isAuthorized.value) {
       router.push({ path: "/login" });
@@ -37,14 +26,14 @@ const useFollowProfile = ({ username, articleSlug }) => {
 
     const profileData = (
       await (!following.value
-        ? profileAPI.follow(profile)
-        : profileAPI.unfollow(profile))
+        ? profileAPI.follow(username)
+        : profileAPI.unfollow(username))
     ).data;
 
     following.value = profileData.following;
   };
 
-  execute();
+  checkFollowingStatus();
 
   return [following, handleFollow];
 };
