@@ -11,7 +11,19 @@
             :authorUsername="article.author.username"
             :authorImage="article.author.image"
             :createdAt="article.createdAt"
-          />
+          >
+            <article-controls
+              :articleSlug="article.slug"
+              :authorUsername="article.author.username"
+              :isCurrentUserArticle="isCurrentUserArticle"
+              :favorited="favorited"
+              :favoritesCount="favoritesCount"
+              :followingAuthor="followingAuthor"
+              @toggle-favorite="handleFavoriteArticle"
+              @toggle-follow="handleFollowAuthor"
+              @delete-article="handleDeleteArticle"
+            />
+          </article-meta>
         </div>
       </div>
 
@@ -33,7 +45,19 @@
             :authorUsername="article.author.username"
             :authorImage="article.author.image"
             :createdAt="article.createdAt"
-          />
+          >
+            <article-controls
+              :articleSlug="article.slug"
+              :authorUsername="article.author.username"
+              :isCurrentUserArticle="isCurrentUserArticle"
+              :favorited="favorited"
+              :favoritesCount="favoritesCount"
+              :followingAuthor="followingAuthor"
+              @toggle-favorite="handleFavoriteArticle"
+              @toggle-follow="handleFollowAuthor"
+              @delete-article="handleDeleteArticle"
+            />
+          </article-meta>
         </div>
 
         <div class="row">
@@ -70,11 +94,12 @@
 </template>
 
 <script>
-import { ref, onMounted, computed, inject } from "vue";
+import { ref, watch, computed, inject } from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 
 import ArticleMeta from "../components/ArticleMeta.vue";
+import ArticleControls from "../components/ArticleControls.vue";
 
 import LoadingSpinner from "../components/LoadingSpinner.vue";
 import TagList from "../components/TagList.vue";
@@ -82,11 +107,14 @@ import CommentForm from "../components/CommentForm.vue";
 import CommentCard from "../components/CommentCard.vue";
 
 import useLoading from "../composables/loading";
+import useFavoriteArticle from "../composables/favorite-article";
+import useFollowProfile from "../composables/follow-profile";
 
 export default {
   name: "ArticlePage",
   components: {
     ArticleMeta,
+    ArticleControls,
     LoadingSpinner,
     TagList,
     CommentForm,
@@ -114,11 +142,33 @@ export default {
     const setArticle = async () => {
       const articleData = (await articlesAPI.getArticle(props.slug)).data;
       if (!articleData) {
-        router.push("/");
+        router.push({ name: "home" });
         return;
       }
       article.value = articleData;
     };
+
+    const isCurrentUserArticle = computed(
+      () => store.state.user.username === article.value.author.username
+    );
+
+    const handleDeleteArticle = async () => {
+      await articlesAPI.deleteArticle(props.slug);
+      router.push({ name: "home" });
+    };
+
+    const [followingAuthor, handleFollowAuthor] = useFollowProfile(
+      { articleSlug: props.slug },
+      isAuthorized,
+      () => {
+        router.push({ name: "login" });
+      }
+    );
+
+    const [favorited, handleFavoriteArticle, favoritesCount] =
+      useFavoriteArticle(props.slug, isAuthorized, () => {
+        router.push({ name: "login" });
+      });
 
     const comments = ref([]);
     const refreshComments = async () => {
@@ -141,16 +191,27 @@ export default {
     };
     const displayedComments = computed(() => comments.value.slice().reverse());
 
-    onMounted(async () => {
-      startLoading();
-      await setArticle();
-      await refreshComments();
-      stopLoading();
-    });
+    watch(
+      () => props.slug,
+      async () => {
+        startLoading();
+        await setArticle();
+        await refreshComments();
+        stopLoading();
+      },
+      { immediate: true }
+    );
 
     return {
       article,
       isLoading,
+      isCurrentUserArticle,
+      handleDeleteArticle,
+      followingAuthor,
+      handleFollowAuthor,
+      favorited,
+      handleFavoriteArticle,
+      favoritesCount,
       displayedComments,
       addComment,
       deleteComment,

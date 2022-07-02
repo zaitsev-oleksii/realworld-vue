@@ -77,7 +77,7 @@ export default {
       startLoading();
       const profileData = (await profileAPI.getProfile(props.username)).data;
       if (!profileData) {
-        router.push("/");
+        router.push({ name: "home" });
         return;
       }
 

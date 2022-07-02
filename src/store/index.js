@@ -49,7 +49,6 @@ export const store = createStore({
   actions: {
     async [LOGIN]({ commit }, credentials) {
       const { error, data: userData } = await authAPI.login(credentials);
-      console.log(error);
       if (error) {
         commit(SET_ERRORS, error);
       } else {

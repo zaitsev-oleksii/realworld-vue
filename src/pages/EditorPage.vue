@@ -108,7 +108,7 @@ export default {
 
     onMounted(async () => {
       if (!store.getters.isAuthorized) {
-        router.push("/login");
+        router.push({ name: "login" });
         return;
       }
 
@@ -116,7 +116,7 @@ export default {
         startLoading();
         const articleData = (await articlesAPI.getArticle(props.slug)).data;
         if (articleData.author.username !== store.state.user.username) {
-          router.push("/");
+          router.push({ name: "home" });
           return;
         }
 
@@ -151,13 +151,13 @@ export default {
             articleData: newArticleData
           })
         ).data;
-        router.push(`/article/${updatedArticleData.slug}`);
+        router.push({ name: "article", params: { slug: updatedArticleData } });
         return;
       }
       const createdArticleData = (
         await articlesAPI.createArticle(newArticleData)
       ).data;
-      router.push(`/article/${createdArticleData.slug}`);
+      router.push({ name: "article", params: { slug: createdArticleData } });
     };
 
     watch(() => props.slug, resetForm);

@@ -15,23 +15,20 @@
         </router-link>
         <span class="date">{{ createdAt }}</span>
       </div>
-      <button
-        class="btn btn-sm pull-xs-right"
-        :class="{
-          'btn-primary': favorited,
-          'btn-outline-primary': !favorited
-        }"
-        @click="handleFavorite"
-      >
-        <i class="ion-heart"></i> {{ favoritesCount }}
-      </button>
+      <favorite-button
+        v-if="favorited !== null"
+        class="pull-xs-right"
+        :favorited="favorited"
+        :favoritesCount="favoritesCount"
+        @toggleFavorite="handleFavorite"
+      />
     </div>
     <router-link
       :to="{ name: 'article', params: { slug: slug } }"
       class="preview-link"
     >
-      <h1>{{ $props.title }}</h1>
-      <p>{{ $props.description }}</p>
+      <h1>{{ title }}</h1>
+      <p>{{ description }}</p>
       <span>Read more...</span>
       <tag-list :tags="tags" />
     </router-link>
@@ -39,6 +36,10 @@
 </template>
 
 <script>
+import { useStore } from "vuex";
+import { useRouter } from "vue-router";
+
+import FavoriteButton from "./FavoriteButton.vue";
 import TagList from "./TagList.vue";
 
 import useFavoriteArticle from "../composables/favorite-article";
@@ -47,7 +48,7 @@ import { MISSING_PROFILE_IMAGE_URL } from "../config";
 
 export default {
   name: "ArticlePreview",
-  components: { TagList },
+  components: { TagList, FavoriteButton },
   props: {
     slug: String,
     author: Object,
@@ -57,8 +58,15 @@ export default {
     tags: Array
   },
   setup(props) {
+    const store = useStore();
+    const router = useRouter();
+
     const [favorited, handleFavorite, favoritesCount] = useFavoriteArticle(
-      props.slug
+      props.slug,
+      store.getters.isAuthorized,
+      () => {
+        router.push({ name: "login" });
+      }
     );
     return {
       favorited,

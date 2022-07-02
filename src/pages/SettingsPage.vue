@@ -81,7 +81,7 @@ export default {
 
     const isAuthorized = computed(() => store.getters.isAuthorized);
     if (!isAuthorized.value) {
-      router.push("/login");
+      router.push({ name: "login" });
       return;
     }
 
@@ -92,12 +92,15 @@ export default {
 
     const handleSubmitUpdates = async () => {
       const updatedUserData = await store.dispatch(UPDATE_USER_DATA, userData);
-      router.push({ path: `/profile/${updatedUserData.username}` });
+      router.push({
+        name: "profile",
+        params: { username: updatedUserData.username }
+      });
     };
 
     const handleLogout = async () => {
       store.dispatch(LOGOUT);
-      router.push({ path: "/" });
+      router.push({ name: "home" });
     };
 
     return { isAuthorized, userData, handleSubmitUpdates, handleLogout };

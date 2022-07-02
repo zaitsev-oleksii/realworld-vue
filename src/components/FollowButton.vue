@@ -1,5 +1,5 @@
 <template>
-  <button class="btn btn-sm btn-outline-secondary">
+  <button class="btn btn-sm btn-outline-secondary" @click="handleClick">
     <i class="ion-plus-round"></i>
     &nbsp; {{ !$props.following ? "Follow" : "Unfollow" }} {{ $props.username }}
   </button>
@@ -12,6 +12,13 @@ export default {
     username: String,
     following: Boolean
   },
-  setup() {}
+  emits: {
+    "toggle-follow": null
+  },
+  setup(props, { emit }) {
+    return {
+      handleClick: () => emit("toggle-follow")
+    };
+  }
 };
 </script>

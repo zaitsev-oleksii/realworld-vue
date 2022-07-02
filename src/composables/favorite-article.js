@@ -1,11 +1,10 @@
-import { ref, computed, inject } from "vue";
-import { useStore } from "vuex";
-import { useRouter } from "vue-router";
+import { ref, unref, inject } from "vue";
 
-const useFavoriteArticle = (slug) => {
-  const store = useStore();
-  const router = useRouter();
-  const isAuthorized = computed(() => store.getters.isAuthorized);
+const useFavoriteArticle = (
+  slug,
+  isAuthorized = false,
+  onUnauthorized = () => {}
+) => {
   const articlesAPI = inject("articlesAPI");
 
   const favorited = ref(null);
@@ -20,8 +19,8 @@ const useFavoriteArticle = (slug) => {
   const handleFavorite = async () => {
     if (favorited.value === null) return;
 
-    if (!isAuthorized.value) {
-      router.push({ path: "/login" });
+    if (!unref(isAuthorized)) {
+      onUnauthorized();
       return;
     }
 
