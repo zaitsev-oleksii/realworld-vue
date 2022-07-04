@@ -115,8 +115,11 @@ export default {
       if (props.slug) {
         startLoading();
         const articleData = (await articlesAPI.getArticle(props.slug)).data;
-        if (articleData.author.username !== store.state.user.username) {
-          router.push({ name: "home" });
+        if (
+          !articleData ||
+          articleData.author.username !== store.state.user.username
+        ) {
+          router.push({ name: "editor" });
           return;
         }
 

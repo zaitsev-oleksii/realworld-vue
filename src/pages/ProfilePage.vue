@@ -37,7 +37,7 @@
 </template>
 
 <script>
-import { ref, computed, watch, onMounted, inject, markRaw } from "vue";
+import { ref, computed, watch, inject, markRaw } from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 
@@ -65,6 +65,8 @@ export default {
     const profileAPI = inject("profileAPI");
     const articlesAPI = inject("articlesAPI");
 
+    const isAuthorized = computed(() => store.getters.isAuthorized);
+
     const profile = ref(null);
     const isCurrentUserProfile = computed(
       () => store.state.user.username === props.username
@@ -74,7 +76,6 @@ export default {
       useLoading(true);
 
     const setProfileData = async () => {
-      startLoading();
       const profileData = (await profileAPI.getProfile(props.username)).data;
       if (!profileData) {
         router.push({ name: "home" });
@@ -82,7 +83,6 @@ export default {
       }
 
       profile.value = profileData;
-      stopLoading();
     };
 
     const tabsMeta = ref([
@@ -106,11 +106,12 @@ export default {
       }
     ]);
 
-    onMounted(setProfileData);
     watch(
       () => props.username,
-      () => {
-        setProfileData();
+      async () => {
+        startLoading();
+        await setProfileData();
+        stopLoading();
         tabsMeta.value = [
           {
             name: "UsersArticles",
@@ -131,12 +132,19 @@ export default {
             }
           }
         ];
-      }
+      },
+      { immediate: true }
     );
 
-    const [following, handleFollow] = useFollowProfile({
-      username: props.username
-    });
+    const [following, handleFollow] = useFollowProfile(
+      {
+        username: props.username
+      },
+      isAuthorized,
+      () => {
+        router.push({ name: "login" });
+      }
+    );
 
     return {
       profile,
