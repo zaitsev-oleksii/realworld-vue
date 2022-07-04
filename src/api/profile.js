@@ -1,22 +1,11 @@
-import axios from "axios";
-import tokenService from "../token-service";
+import { axiosClient } from "./axios-client";
 
-const BASE_API_URL = "https://api.realworld.io/api";
 const PROFILE_PATH = "/profiles/:username";
 const FOLLOW_PROFILE_PATH = "/profiles/:username/follow";
 
-const authToken = tokenService.getToken();
-
-const instance = axios.create({
-  baseURL: BASE_API_URL,
-  headers: {
-    ...(authToken && { Authorization: `Bearer ${authToken} ` })
-  }
-});
-
 export const getProfile = (username) => {
   const url = PROFILE_PATH.replace(":username", encodeURIComponent(username));
-  return instance
+  return axiosClient
     .get(url)
     .then((res) => ({ error: null, data: res.data.profile }))
     .catch((err) => ({ error: err.response.data.errors }));
@@ -27,7 +16,7 @@ export const follow = (username) => {
     ":username",
     encodeURIComponent(username)
   );
-  return instance
+  return axiosClient
     .post(url)
     .then((res) => ({ error: null, data: res.data.profile }))
     .catch((err) => ({ error: err.response.data.errors }));
@@ -38,7 +27,7 @@ export const unfollow = (username) => {
     ":username",
     encodeURIComponent(username)
   );
-  return instance
+  return axiosClient
     .delete(url)
     .then((res) => ({ error: null, data: res.data.profile }))
     .catch((err) => ({ error: err.response.data.errors }));

@@ -1,27 +1,15 @@
-import axios from "axios";
-import tokenService from "../token-service";
-
-const BASE_API_URL = "https://api.realworld.io/api";
+import { axiosClient } from "./axios-client";
 
 const LOGIN_PATH = "/users/login";
 const REGISTER_PATH = "/users";
 const CURRENT_USER_PATH = "/user";
-
-const authToken = tokenService.getToken();
-
-const instance = axios.create({
-  baseURL: BASE_API_URL,
-  headers: {
-    ...(authToken && { Authorization: `Bearer ${authToken} ` })
-  }
-});
 
 export const login = (credentials) => {
   const user = {
     email: credentials.email,
     password: credentials.password
   };
-  return instance
+  return axiosClient
     .post(LOGIN_PATH, { user: user })
     .then((res) => ({ error: null, data: res.data.user }))
     .catch((err) => ({ error: err.response.data.errors }));
@@ -33,14 +21,14 @@ export const register = (registerData) => {
     email: registerData.email || "",
     password: registerData.password || ""
   };
-  return instance
+  return axiosClient
     .post(REGISTER_PATH, { user: user })
     .then((res) => ({ error: null, data: res.data.user }))
     .catch((err) => ({ error: err.response.data.errors }));
 };
 
 export const getCurrentUser = () =>
-  instance
+  axiosClient
     .get(CURRENT_USER_PATH)
     .then((res) => ({ error: null, data: res.data.user }))
     .catch((err) => ({ error: err.response.data.errors }));
@@ -54,7 +42,7 @@ export const updateCurrentUser = (userData) => {
     ...(userData.password && { password: userData.password })
   };
 
-  return instance
+  return axiosClient
     .put(CURRENT_USER_PATH, { user: user })
     .then((res) => ({ error: null, data: res.data.user }))
     .catch((err) => ({ error: err.response.data.errors }));
