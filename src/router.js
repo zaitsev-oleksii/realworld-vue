@@ -1,17 +1,17 @@
 import { createRouter, createWebHashHistory } from "vue-router";
 
-import HomeView from "./views/Home.vue";
-import LoginView from "./views/Login.vue";
-import RegisterView from "./views/Register.vue";
-import SettingsView from "./views/Settings.vue";
-import ArticleEditorView from "./views/ArticleEditor.vue";
-import ArticleView from "./views/Article.vue";
-import ProfileView from "./views/Profile.vue";
-import GlobalFeed from "./views/home/GlobalFeed.vue";
-import PersonalFeed from "./views/home/PersonalFeed.vue";
-import TagFeed from "./views/home/TagFeed.vue";
-import CreatedArticles from "./views/profile/CreatedArticles.vue";
-import FavoritedArticles from "./views/profile/FavoritedArticles.vue";
+const HomeView = () => import("./views/Home.vue");
+const LoginView = () => import("./views/Login.vue");
+const RegisterView = () => import("./views/Register.vue");
+const SettingsView = () => import("./views/Settings.vue");
+const ArticleEditorView = () => import("./views/ArticleEditor.vue");
+const ArticleView = () => import("./views/Article.vue");
+const ProfileView = () => import("./views/Profile.vue");
+const GlobalFeed = () => import("./views/home/GlobalFeed.vue");
+const PersonalFeed = () => import("./views/home/PersonalFeed.vue");
+const TagFeed = () => import("./views/home/TagFeed.vue");
+const CreatedArticles = () => import("./views/profile/CreatedArticles.vue");
+const FavoritedArticles = () => import("./views/profile/FavoritedArticles.vue");
 
 const routes = [
   {
