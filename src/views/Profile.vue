@@ -19,7 +19,7 @@
             <follow-button
               v-else
               :following="following"
-              @click="handleFollow"
+              @toggle-follow="handleFollow"
             />
           </div>
         </div>
@@ -29,7 +29,29 @@
     <div class="container">
       <div class="row">
         <div class="col-xs-12 col-md-10 offset-md-1">
-          <u-tabs :tabsMeta="tabsMeta" :isAuthorized="isAuthorized" />
+          <div class="feed-toggle">
+            <ul class="nav nav-pills outline-active">
+              <li class="nav-item">
+                <router-link
+                  :to="{ name: 'profile' }"
+                  class="nav-link"
+                  exact-active-class="active"
+                >
+                  My Articles
+                </router-link>
+              </li>
+              <li class="nav-item">
+                <router-link
+                  :to="{ name: 'favorited-articles' }"
+                  class="nav-link"
+                  exact-active-class="active"
+                >
+                  Favorited Articles
+                </router-link>
+              </li>
+            </ul>
+          </div>
+          <router-view></router-view>
         </div>
       </div>
     </div>
@@ -37,13 +59,11 @@
 </template>
 
 <script>
-import { ref, computed, watch, inject, markRaw } from "vue";
+import { ref, computed, watch, inject } from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 
 import FollowButton from "../components/FollowButton.vue";
-import UTabs from "../components/UTabs.vue";
-import ArticleFeed from "../components/ArticleFeed.vue";
 
 import LoadingSpinner from "../components/LoadingSpinner.vue";
 
@@ -51,8 +71,8 @@ import useFollowProfile from "../composables/follow-profile";
 import useLoading from "../composables/loading";
 
 export default {
-  name: "ProfilePage",
-  components: { FollowButton, LoadingSpinner, UTabs },
+  name: "ProfileView",
+  components: { FollowButton, LoadingSpinner },
   props: {
     username: {
       type: String,
@@ -63,7 +83,6 @@ export default {
     const store = useStore();
     const router = useRouter();
     const profileAPI = inject("profileAPI");
-    const articlesAPI = inject("articlesAPI");
 
     const isAuthorized = computed(() => store.getters.isAuthorized);
 
@@ -85,53 +104,12 @@ export default {
       profile.value = profileData;
     };
 
-    const tabsMeta = ref([
-      {
-        name: "UsersArticles",
-        display: "My Articles",
-        component: markRaw(ArticleFeed),
-        props: {
-          api: articlesAPI.getArticles,
-          filterParams: { author: props.username }
-        }
-      },
-      {
-        name: "FavoritedArticles",
-        display: "Favorited Articles",
-        component: markRaw(ArticleFeed),
-        props: {
-          api: articlesAPI.getArticles,
-          filterParams: { favoritedBy: props.username }
-        }
-      }
-    ]);
-
     watch(
       () => props.username,
       async () => {
         startLoading();
         await setProfileData();
         stopLoading();
-        tabsMeta.value = [
-          {
-            name: "UsersArticles",
-            display: "My Articles",
-            component: markRaw(ArticleFeed),
-            props: {
-              api: articlesAPI.getArticles,
-              filterParams: { author: props.username }
-            }
-          },
-          {
-            name: "FavoritedArticles",
-            display: "Favorited Articles",
-            component: markRaw(ArticleFeed),
-            props: {
-              api: articlesAPI.getArticles,
-              filterParams: { favoritedBy: props.username }
-            }
-          }
-        ];
       },
       { immediate: true }
     );
@@ -151,7 +129,6 @@ export default {
       isCurrentUserProfile,
       isLoading,
       following,
-      tabsMeta,
       isAuthorized: computed(() => store.getters.isAuthorized),
       handleFollow
     };

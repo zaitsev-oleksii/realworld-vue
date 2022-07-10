@@ -73,7 +73,7 @@ import LoadingSpinner from "../components/LoadingSpinner.vue";
 import useLoading from "../composables/loading";
 
 export default {
-  name: "EditorPage",
+  name: "ArticleEditorView",
   components: { LoadingSpinner },
   props: {
     slug: {
@@ -107,11 +107,6 @@ export default {
       useLoading(false);
 
     onMounted(async () => {
-      if (!store.getters.isAuthorized) {
-        router.push({ name: "login" });
-        return;
-      }
-
       if (props.slug) {
         startLoading();
         const articleData = (await articlesAPI.getArticle(props.slug)).data;

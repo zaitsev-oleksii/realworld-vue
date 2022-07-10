@@ -111,7 +111,7 @@ import useFavoriteArticle from "../composables/favorite-article";
 import useFollowProfile from "../composables/follow-profile";
 
 export default {
-  name: "ArticlePage",
+  name: "ArticleView",
   components: {
     ArticleMeta,
     ArticleControls,

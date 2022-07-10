@@ -23,7 +23,7 @@
 </template>
 
 <script>
-import { ref, onMounted, computed, watch } from "vue";
+import { ref, computed, watch } from "vue";
 
 import ArticleList from "./ArticleList.vue";
 
@@ -45,7 +45,7 @@ export default {
     const [
       { isLoading, message: loadingMessage },
       { start: startLoading, stop: stopLoading }
-    ] = useLoading(true, "Loading articles...");
+    ] = useLoading(true);
 
     /* 
       Roundabout since we cannot get total articles count
@@ -95,22 +95,18 @@ export default {
       prefetchedArticles.value = prefetchedArticlesData;
     };
 
-    onMounted(async () => {
-      startLoading();
-      await setArticlesData();
-      await setPrefetchedArticlesData();
-      buttonsVisible.value = true;
-      stopLoading();
-    });
-
-    watch(currentPage, async () => {
-      startLoading();
-      buttonsVisible.value = false;
-      await setArticlesData();
-      await setPrefetchedArticlesData();
-      buttonsVisible.value = true;
-      stopLoading();
-    });
+    watch(
+      [currentPage, () => props.filterParams],
+      async () => {
+        startLoading("Loading articles...");
+        buttonsVisible.value = false;
+        await setArticlesData();
+        await setPrefetchedArticlesData();
+        buttonsVisible.value = true;
+        stopLoading();
+      },
+      { immediate: true }
+    );
 
     return {
       articles,

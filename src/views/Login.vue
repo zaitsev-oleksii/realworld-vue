@@ -59,7 +59,7 @@ import useLoading from "../composables/loading";
 import { parseErrors } from "../helpers/errors";
 
 export default {
-  name: "LoginPage",
+  name: "LoginView",
   components: { LoadingSpinner },
   setup() {
     const store = useStore();

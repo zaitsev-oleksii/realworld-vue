@@ -82,17 +82,13 @@ import LoadingSpinner from "../components/LoadingSpinner.vue";
 import useLoading from "../composables/loading";
 
 export default {
-  name: "SettingsPage",
+  name: "SettingsView",
   components: { LoadingSpinner },
   setup() {
     const store = useStore();
     const router = useRouter();
 
     const isAuthorized = computed(() => store.getters.isAuthorized);
-    if (!isAuthorized.value) {
-      router.push({ name: "login" });
-      return;
-    }
 
     const [{ isLoading }, { start: startLoading }] = useLoading(false);
 

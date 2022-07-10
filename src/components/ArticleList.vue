@@ -1,6 +1,6 @@
 <template>
   <article-preview
-    v-for="article in $props.articles"
+    v-for="article in articles"
     :key="article.slug"
     :slug="article.slug"
     :author="article.author"

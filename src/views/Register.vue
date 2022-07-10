@@ -46,7 +46,7 @@
 
 <script>
 export default {
-  name: "RegisterPage",
+  name: "RegisterView",
   setup() {}
 };
 </script>

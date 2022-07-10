@@ -17,6 +17,11 @@ app.provide("profileAPI", api.profileAPI);
 app.provide("articlesAPI", api.articlesAPI);
 app.provide("commentsAPI", api.commentsAPI);
 
-router.beforeEach(() => store.dispatch(VERIFY_AUTH));
+router.beforeEach(async (to) => {
+  await store.dispatch(VERIFY_AUTH);
+  if (to.meta.requiresAuth && !store.getters.isAuthorized) {
+    router.push({ name: "login" });
+  }
+});
 
 app.mount("#app");
