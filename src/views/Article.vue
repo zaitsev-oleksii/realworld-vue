@@ -65,6 +65,7 @@
             <comment-form
               v-if="isAuthorized"
               :articleSlug="article.slug"
+              :userImage="currentUser.image"
               @new-comment="(commentText) => addComment(commentText)"
             />
             <template v-else>
@@ -98,17 +99,16 @@ import { ref, watch, computed, inject } from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 
+import LoadingSpinner from "../components/LoadingSpinner.vue";
 import ArticleMeta from "../components/ArticleMeta.vue";
 import ArticleControls from "../components/ArticleControls.vue";
-
-import LoadingSpinner from "../components/LoadingSpinner.vue";
 import TagList from "../components/TagList.vue";
 import CommentForm from "../components/CommentForm.vue";
 import CommentCard from "../components/CommentCard.vue";
 
 import useLoading from "../composables/loading";
-import useFavoriteArticle from "../composables/favorite-article";
-import useFollowProfile from "../composables/follow-profile";
+// import useFavoriteArticle from "../composables/favorite-article";
+// import useFollowProfile from "../composables/follow-profile";
 
 export default {
   name: "ArticleView",
@@ -131,17 +131,19 @@ export default {
     const router = useRouter();
     const articlesAPI = inject("articlesAPI");
     const commentsAPI = inject("commentsAPI");
+    const profileAPI = inject("profileAPI");
 
     const isAuthorized = computed(() => store.getters.isAuthorized);
-
-    const article = ref(null);
-
+    const currentUser = computed(() => store.state.user);
     const [{ isLoading }, { start: startLoading, stop: stopLoading }] =
       useLoading(true);
 
-    const setArticle = async () => {
-      const articleData = (await articlesAPI.getArticle(props.slug)).data;
-      if (!articleData) {
+    const article = ref(null);
+    const loadArticle = async () => {
+      const { error, data: articleData } = await articlesAPI.getArticle(
+        props.slug
+      );
+      if (error) {
         router.push({ name: "home" });
         return;
       }
@@ -149,54 +151,85 @@ export default {
     };
 
     const isCurrentUserArticle = computed(
-      () => store.state.user.username === article.value.author.username
+      () => currentUser.value.username === article.value.author.username
     );
-
     const handleDeleteArticle = async () => {
       await articlesAPI.deleteArticle(props.slug);
       router.push({ name: "home" });
     };
 
-    const [followingAuthor, handleFollowAuthor] = useFollowProfile(
-      { articleSlug: props.slug },
-      isAuthorized,
-      () => {
+    const favorited = computed(() => article.value.favorited);
+    const favoritesCount = computed(() => article.value.favoritesCount);
+    const handleFavoriteArticle = async () => {
+      if (!isAuthorized.value) {
         router.push({ name: "login" });
+        return;
       }
-    );
+      const { error, data: newArticleData } = await (!favorited.value
+        ? articlesAPI.favorite(props.slug)
+        : articlesAPI.unfavorite(props.slug));
+      if (error) {
+        return;
+      }
+      article.value.favorited = newArticleData.favorited;
+      article.value.favoritesCount = newArticleData.favoritesCount;
+    };
 
-    const [favorited, handleFavoriteArticle, favoritesCount] =
-      useFavoriteArticle(props.slug, isAuthorized, () => {
+    const followingAuthor = computed(() => article.value.author.following);
+    const handleFollowAuthor = async () => {
+      if (!isAuthorized.value) {
         router.push({ name: "login" });
-      });
+        return;
+      }
+      const { error, data: newAuthorData } = await (!followingAuthor.value
+        ? profileAPI.follow(article.value.author.username)
+        : profileAPI.unfollow(article.value.author.username));
+      if (error) {
+        return;
+      }
+      article.value.author.following = newAuthorData.following;
+    };
 
     const comments = ref([]);
-    const refreshComments = async () => {
-      const commentsData = (await commentsAPI.getComments(props.slug)).data;
+    const loadComments = async () => {
+      const { error, data: commentsData } = await commentsAPI.getComments(
+        props.slug
+      );
+      if (error) {
+        return;
+      }
       comments.value = commentsData;
     };
     const addComment = async (commentText) => {
-      await commentsAPI.createComment({
+      const { error, data: newComment } = await commentsAPI.createComment({
         slug: props.slug,
         commentText: commentText
       });
-      refreshComments();
+      if (error) {
+        return;
+      }
+
+      comments.value.unshift(newComment);
     };
     const deleteComment = async (commentId) => {
       await commentsAPI.deleteComment({
         slug: props.slug,
         id: commentId
       });
-      refreshComments();
+      loadComments();
     };
-    const displayedComments = computed(() => comments.value.slice().reverse());
+    const sortCriteria = (curr, next) =>
+      new Date(next.createdAt) - new Date(curr.createdAt);
+    const displayedComments = computed(() =>
+      comments.value.slice().sort(sortCriteria)
+    );
 
     watch(
       () => props.slug,
       async () => {
         startLoading();
-        await setArticle();
-        await refreshComments();
+        await loadArticle();
+        await loadComments();
         stopLoading();
       },
       { immediate: true }
@@ -205,6 +238,7 @@ export default {
     return {
       article,
       isLoading,
+      currentUser,
       isCurrentUserArticle,
       handleDeleteArticle,
       followingAuthor,
@@ -215,7 +249,6 @@ export default {
       displayedComments,
       addComment,
       deleteComment,
-      refreshComments,
       isAuthorized
     };
   }

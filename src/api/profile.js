@@ -7,7 +7,7 @@ export const getProfile = (username) => {
   const url = PROFILE_PATH.replace(":username", encodeURIComponent(username));
   return axiosClient
     .get(url)
-    .then((res) => ({ error: null, data: res.data.profile }))
+    .then((res) => ({ data: res.data.profile }))
     .catch((err) => ({ error: err.response.data.errors }));
 };
 
@@ -18,7 +18,7 @@ export const follow = (username) => {
   );
   return axiosClient
     .post(url)
-    .then((res) => ({ error: null, data: res.data.profile }))
+    .then((res) => ({ data: res.data.profile }))
     .catch((err) => ({ error: err.response.data.errors }));
 };
 
@@ -29,7 +29,7 @@ export const unfollow = (username) => {
   );
   return axiosClient
     .delete(url)
-    .then((res) => ({ error: null, data: res.data.profile }))
+    .then((res) => ({ data: res.data.profile }))
     .catch((err) => ({ error: err.response.data.errors }));
 };
 

@@ -56,7 +56,7 @@ import { LOGIN } from "../store/action-types";
 import LoadingSpinner from "../components/LoadingSpinner.vue";
 import useLoading from "../composables/loading";
 
-import { parseErrors } from "../helpers/errors";
+import { parseErrors } from "../helpers";
 
 export default {
   name: "LoginView",

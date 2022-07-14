@@ -73,25 +73,27 @@ export default {
         currentPage.value === lastPage || prefetchedArticles.value.length === 0
     );
 
-    const setArticlesData = async () => {
-      const articlesData = (
-        await props.api({
-          limit: ARTICLES_PER_PAGE,
-          offset: offset.value,
-          filterParams: props.filterParams
-        })
-      ).data;
+    const loadArticles = async () => {
+      const { error, data: articlesData } = await props.api({
+        limit: ARTICLES_PER_PAGE,
+        offset: offset.value,
+        filterParams: props.filterParams
+      });
+      if (error) {
+        return;
+      }
 
       articles.value = articlesData;
     };
-    const setPrefetchedArticlesData = async () => {
-      const prefetchedArticlesData = (
-        await props.api({
-          limit: ARTICLES_PER_PAGE,
-          offset: offset.value + ARTICLES_PER_PAGE,
-          filterParams: props.filterParams
-        })
-      ).data;
+    const loadPrefetchedArticles = async () => {
+      const { error, data: prefetchedArticlesData } = await props.api({
+        limit: ARTICLES_PER_PAGE,
+        offset: offset.value + ARTICLES_PER_PAGE,
+        filterParams: props.filterParams
+      });
+      if (error) {
+        return;
+      }
       prefetchedArticles.value = prefetchedArticlesData;
     };
 
@@ -100,8 +102,8 @@ export default {
       async () => {
         startLoading("Loading articles...");
         buttonsVisible.value = false;
-        await setArticlesData();
-        await setPrefetchedArticlesData();
+        await loadArticles();
+        await loadPrefetchedArticles();
         buttonsVisible.value = true;
         stopLoading();
       },

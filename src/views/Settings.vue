@@ -93,7 +93,9 @@ export default {
     const [{ isLoading }, { start: startLoading }] = useLoading(false);
 
     const userData = reactive({
-      ...store.state.user,
+      username: store.state.user.username,
+      image: store.state.user.image,
+      bio: store.state.user.bio,
       password: ""
     });
 

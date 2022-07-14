@@ -79,7 +79,10 @@ export default {
 
     const popularTags = ref([]);
     onMounted(async () => {
-      const tags = (await articlesAPI.getTags()).data;
+      const { error, data: tags } = await articlesAPI.getTags();
+      if (error) {
+        return;
+      }
       popularTags.value = tags;
     });
 

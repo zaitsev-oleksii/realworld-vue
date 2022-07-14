@@ -17,7 +17,7 @@
       >
         {{ authorUsername }}
       </router-link>
-      <span class="date">{{ createdAt }}</span>
+      <span class="date">{{ parseDate(createdAt) }}</span>
     </div>
 
     <slot></slot>
@@ -25,6 +25,8 @@
 </template>
 
 <script>
+import { parseDate } from "../helpers";
+
 import { MISSING_PROFILE_IMAGE_URL } from "../config";
 
 export default {
@@ -37,6 +39,7 @@ export default {
   },
   setup() {
     return {
+      parseDate,
       MISSING_PROFILE_IMAGE_URL
     };
   }

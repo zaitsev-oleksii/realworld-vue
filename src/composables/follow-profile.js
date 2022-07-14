@@ -1,31 +1,27 @@
 import { ref, unref, inject } from "vue";
 
-const useFollowProfile = (
-  { username, articleSlug },
+const useFollowProfile = ({
+  username,
+  initFollowing = null,
   isAuthorized = false,
   onUnauthorized = () => {}
-) => {
+}) => {
   const profileAPI = inject("profileAPI");
-  const articlesAPI = inject("articlesAPI");
 
-  const following = ref(null);
+  const following = ref(initFollowing);
 
-  let user = null;
   const checkFollowingStatus = async () => {
-    if (articleSlug) {
-      const profileData = (await articlesAPI.getArticle(articleSlug)).data
-        .author;
-      following.value = profileData.following;
-      user = profileData;
-    } else {
-      const profileData = (await profileAPI.getProfile(username)).data;
-      following.value = profileData.following;
-      user = profileData;
+    const { error, data: profileData } = await profileAPI.getProfile(username);
+    if (error) {
+      return;
     }
+    following.value = profileData.following;
   };
 
   const handleFollow = async () => {
-    if (following.value === null || (!username && !articleSlug)) return;
+    if (following.value === null) {
+      return;
+    }
 
     if (!unref(isAuthorized)) {
       onUnauthorized();
@@ -34,14 +30,14 @@ const useFollowProfile = (
 
     const profileData = (
       await (!following.value
-        ? profileAPI.follow(user.username)
-        : profileAPI.unfollow(user.username))
+        ? profileAPI.follow(username)
+        : profileAPI.unfollow(username))
     ).data;
 
     following.value = profileData.following;
   };
 
-  checkFollowingStatus();
+  if (initFollowing === null) checkFollowingStatus();
 
   return [following, handleFollow];
 };

@@ -9,7 +9,7 @@ const FAVORITE_ARTICLE_PATH = "/articles/:slug/favorite";
 export const getTags = () =>
   axiosClient
     .get(TAGS_PATH)
-    .then((res) => ({ error: null, data: res.data.tags }))
+    .then((res) => ({ data: res.data.tags }))
     .catch((err) => ({ error: err.response.data.errors }));
 
 export const getArticles = (options = {}) => {
@@ -24,7 +24,7 @@ export const getArticles = (options = {}) => {
   });
   return axiosClient
     .get(ARTICLES_PATH, { params: params })
-    .then((res) => ({ error: null, data: res.data.articles }))
+    .then((res) => ({ data: res.data.articles }))
     .catch((err) => ({ error: err.response.data.errors }));
 };
 
@@ -36,7 +36,7 @@ export const getArticlesFeed = (options = {}) => {
   });
   return axiosClient
     .get(FEED_PATH, { params: params })
-    .then((res) => ({ error: null, data: res.data.articles }))
+    .then((res) => ({ data: res.data.articles }))
     .catch((err) => ({ error: err.response.data.errors }));
 };
 
@@ -49,7 +49,7 @@ export const createArticle = (articleData) => {
   };
   return axiosClient
     .post(ARTICLES_PATH, { article: article })
-    .then((res) => ({ error: null, data: res.data.article }))
+    .then((res) => ({ data: res.data.article }))
     .catch((err) => ({ error: err.response.data.errors }));
 };
 
@@ -57,7 +57,7 @@ export const getArticle = (slug) => {
   const url = ARTICLE_PATH.replace(":slug", encodeURIComponent(slug));
   return axiosClient
     .get(url)
-    .then((res) => ({ error: null, data: res.data.article }))
+    .then((res) => ({ data: res.data.article }))
     .catch((err) => ({ error: err.response.data.errors }));
 };
 
@@ -71,7 +71,7 @@ export const updateArticle = ({ slug, articleData }) => {
   };
   return axiosClient
     .put(url, { article: article })
-    .then((res) => ({ error: null, data: res.data.article }))
+    .then((res) => ({ data: res.data.article }))
     .catch((err) => ({ error: err.response.data.errors }));
 };
 
@@ -79,7 +79,7 @@ export const deleteArticle = (slug) => {
   const url = ARTICLE_PATH.replace(":slug", encodeURIComponent(slug));
   return axiosClient
     .delete(url)
-    .then((res) => ({ error: null, data: res.data }))
+    .then((res) => ({ data: res.data }))
     .catch((err) => ({ error: err.response.data.errors }));
 };
 
@@ -87,7 +87,7 @@ const favorite = async (slug) => {
   const url = FAVORITE_ARTICLE_PATH.replace(":slug", encodeURIComponent(slug));
   return axiosClient
     .post(url)
-    .then((res) => ({ error: null, data: res.data.article }))
+    .then((res) => ({ data: res.data.article }))
     .catch((err) => ({ error: err.response.data.errors }));
 };
 
@@ -95,7 +95,7 @@ const unfavorite = async (slug) => {
   const url = FAVORITE_ARTICLE_PATH.replace(":slug", encodeURIComponent(slug));
   return axiosClient
     .delete(url)
-    .then((res) => ({ error: null, data: res.data.article }))
+    .then((res) => ({ data: res.data.article }))
     .catch((err) => ({ error: err.response.data.errors }));
 };
 

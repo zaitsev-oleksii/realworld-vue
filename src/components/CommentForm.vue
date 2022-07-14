@@ -10,7 +10,7 @@
     </div>
     <div class="card-footer">
       <img
-        :src="currentUserImage || MISSING_PROFILE_IMAGE_URL"
+        :src="userImage || MISSING_PROFILE_IMAGE_URL"
         class="comment-author-img"
       />
       <button type="submit" class="btn btn-sm btn-primary">Post Comment</button>
@@ -19,33 +19,32 @@
 </template>
 
 <script>
-import { ref, computed } from "vue";
-import { useStore } from "vuex";
+import { ref } from "vue";
 
 import { MISSING_PROFILE_IMAGE_URL } from "../config";
 
 export default {
   name: "CommentForm",
   props: {
-    articleSlug: String
+    articleSlug: String,
+    userImage: String
   },
   emits: {
     "new-comment": null
   },
   setup(props, { emit }) {
-    const store = useStore();
-
     const commentText = ref("");
 
-    const currentUserImage = computed(() => store.state.user.image);
-
     const handleSubmit = async () => {
+      if (!commentText.value) {
+        return;
+      }
       emit("new-comment", commentText.value);
+      commentText.value = "";
     };
 
     return {
       commentText,
-      currentUserImage,
       handleSubmit,
       MISSING_PROFILE_IMAGE_URL
     };

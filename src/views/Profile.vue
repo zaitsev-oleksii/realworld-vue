@@ -67,7 +67,6 @@ import FollowButton from "../components/FollowButton.vue";
 
 import LoadingSpinner from "../components/LoadingSpinner.vue";
 
-import useFollowProfile from "../composables/follow-profile";
 import useLoading from "../composables/loading";
 
 export default {
@@ -85,43 +84,47 @@ export default {
     const profileAPI = inject("profileAPI");
 
     const isAuthorized = computed(() => store.getters.isAuthorized);
+    const [{ isLoading }, { start: startLoading, stop: stopLoading }] =
+      useLoading(true);
 
     const profile = ref(null);
     const isCurrentUserProfile = computed(
       () => store.state.user.username === props.username
     );
 
-    const [{ isLoading }, { start: startLoading, stop: stopLoading }] =
-      useLoading(true);
-
-    const setProfileData = async () => {
-      const profileData = (await profileAPI.getProfile(props.username)).data;
-      if (!profileData) {
+    const loadProfileData = async () => {
+      const { error, data: profileData } = await profileAPI.getProfile(
+        props.username
+      );
+      if (error) {
         router.push({ name: "home" });
         return;
       }
-
       profile.value = profileData;
+    };
+
+    const following = computed(() => profile.value.following);
+    const handleFollow = async () => {
+      if (!isAuthorized.value) {
+        router.push({ name: "login" });
+      }
+      const { error, data: profileData } = await (!following.value
+        ? profileAPI.follow(props.username)
+        : profileAPI.unfollow(props.username));
+      if (error) {
+        return;
+      }
+      profile.value.following = profileData.following;
     };
 
     watch(
       () => props.username,
       async () => {
         startLoading();
-        await setProfileData();
+        await loadProfileData();
         stopLoading();
       },
       { immediate: true }
-    );
-
-    const [following, handleFollow] = useFollowProfile(
-      {
-        username: props.username
-      },
-      isAuthorized,
-      () => {
-        router.push({ name: "login" });
-      }
     );
 
     return {
@@ -129,8 +132,8 @@ export default {
       isCurrentUserProfile,
       isLoading,
       following,
-      isAuthorized: computed(() => store.getters.isAuthorized),
-      handleFollow
+      handleFollow,
+      isAuthorized: computed(() => store.getters.isAuthorized)
     };
   }
 };

@@ -21,7 +21,7 @@
         class="comment-author"
         >{{ author.username }}</router-link
       >
-      <span class="date-posted">{{ createdAt }}</span>
+      <span class="date-posted">{{ parseDate(createdAt) }}</span>
       <span class="mod-options" v-if="isCurrentUserComment">
         <i class="ion-trash-a" @click="handleDeleteComment"></i>
       </span>
@@ -33,6 +33,7 @@
 import { computed } from "vue";
 import { useStore } from "vuex";
 
+import { parseDate } from "../helpers";
 import { MISSING_PROFILE_IMAGE_URL } from "../config";
 
 export default {
@@ -61,6 +62,7 @@ export default {
     return {
       isCurrentUserComment,
       handleDeleteComment,
+      parseDate,
       MISSING_PROFILE_IMAGE_URL
     };
   }

@@ -8,6 +8,8 @@
     :title="article.title"
     :description="article.description"
     :tags="article.tagList"
+    :initFavorited="article.favorited"
+    :initFavoritesCount="article.favoritesCount"
   />
 </template>
 

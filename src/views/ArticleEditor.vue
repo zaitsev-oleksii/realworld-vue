@@ -65,7 +65,7 @@
 </template>
 
 <script>
-import { ref, reactive, onMounted, watch, inject } from "vue";
+import { ref, reactive, watch, inject } from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 
@@ -106,26 +106,6 @@ export default {
     const [{ isLoading }, { start: startLoading, stop: stopLoading }] =
       useLoading(false);
 
-    onMounted(async () => {
-      if (props.slug) {
-        startLoading();
-        const articleData = (await articlesAPI.getArticle(props.slug)).data;
-        if (
-          !articleData ||
-          articleData.author.username !== store.state.user.username
-        ) {
-          router.push({ name: "editor" });
-          return;
-        }
-
-        formData.title = articleData.title;
-        formData.description = articleData.description;
-        formData.body = articleData.body;
-        tags.value = articleData.tagList;
-        stopLoading();
-      }
-    });
-
     const addTag = () => {
       tags.value.push(formData.tag);
       formData.tag = "";
@@ -136,29 +116,59 @@ export default {
     };
 
     const handleSubmit = async () => {
-      const newArticleData = {
+      const articleData = {
         title: formData.title,
         description: formData.description,
         body: formData.body,
         tagList: tags.value
       };
-      if (props.slug) {
-        const updatedArticleData = (
-          await articlesAPI.updateArticle({
+
+      const { error, data: newArticleData } = await (props.slug
+        ? articlesAPI.updateArticle({
             slug: props.slug,
-            articleData: newArticleData
+            articleData: articleData
           })
-        ).data;
-        router.push({ name: "article", params: { slug: updatedArticleData } });
+        : articlesAPI.createArticle(newArticleData));
+
+      if (error) {
         return;
       }
-      const createdArticleData = (
-        await articlesAPI.createArticle(newArticleData)
-      ).data;
-      router.push({ name: "article", params: { slug: createdArticleData } });
+      router.push({ name: "article", params: { slug: newArticleData.slug } });
     };
 
-    watch(() => props.slug, resetForm);
+    watch(
+      () => props.slug,
+      async () => {
+        startLoading();
+        resetForm();
+
+        if (!props.slug) {
+          stopLoading();
+          return;
+        }
+
+        const { error, data: articleData } = await articlesAPI.getArticle(
+          props.slug
+        );
+        if (error) {
+          router.push({ name: "editor" });
+          return;
+        }
+        if (articleData.author.username !== store.state.user.username) {
+          router.push({ name: "editor" });
+          return;
+        }
+
+        formData.title = articleData.title;
+        formData.description = articleData.description;
+        formData.body = articleData.body;
+        tags.value = articleData.tagList;
+        console.log(isLoading.value);
+        stopLoading();
+        console.log(isLoading.value);
+      },
+      { immediate: true }
+    );
 
     return {
       isLoading,

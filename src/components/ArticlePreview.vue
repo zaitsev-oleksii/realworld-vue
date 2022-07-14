@@ -13,7 +13,7 @@
         >
           {{ author.username }}
         </router-link>
-        <span class="date">{{ createdAt }}</span>
+        <span class="date">{{ parseDate(createdAt) }}</span>
       </div>
       <favorite-button
         v-if="favorited !== null"
@@ -44,6 +44,7 @@ import TagList from "./TagList.vue";
 
 import useFavoriteArticle from "../composables/favorite-article";
 
+import { parseDate } from "../helpers";
 import { MISSING_PROFILE_IMAGE_URL } from "../config";
 
 export default {
@@ -55,23 +56,28 @@ export default {
     createdAt: String,
     title: String,
     description: String,
-    tags: Array
+    tags: Array,
+    initFavorited: Boolean,
+    initFavoritesCount: Number
   },
   setup(props) {
     const store = useStore();
     const router = useRouter();
 
-    const [favorited, handleFavorite, favoritesCount] = useFavoriteArticle(
-      props.slug,
-      store.getters.isAuthorized,
-      () => {
+    const [favorited, handleFavorite, favoritesCount] = useFavoriteArticle({
+      slug: props.slug,
+      initFavorited: props.initFavorited,
+      initFavoritesCount: props.initFavoritesCount,
+      isAuthorized: store.getters.isAuthorized,
+      onUnauthorized: () => {
         router.push({ name: "login" });
       }
-    );
+    });
     return {
       favorited,
       handleFavorite,
       favoritesCount,
+      parseDate,
       MISSING_PROFILE_IMAGE_URL
     };
   }

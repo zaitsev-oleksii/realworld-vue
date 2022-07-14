@@ -11,7 +11,7 @@ export const login = (credentials) => {
   };
   return axiosClient
     .post(LOGIN_PATH, { user: user })
-    .then((res) => ({ error: null, data: res.data.user }))
+    .then((res) => ({ data: res.data.user }))
     .catch((err) => ({ error: err.response.data.errors }));
 };
 
@@ -23,14 +23,14 @@ export const register = (registerData) => {
   };
   return axiosClient
     .post(REGISTER_PATH, { user: user })
-    .then((res) => ({ error: null, data: res.data.user }))
+    .then((res) => ({ data: res.data.user }))
     .catch((err) => ({ error: err.response.data.errors }));
 };
 
 export const getCurrentUser = () =>
   axiosClient
     .get(CURRENT_USER_PATH)
-    .then((res) => ({ error: null, data: res.data.user }))
+    .then((res) => ({ data: res.data.user }))
     .catch((err) => ({ error: err.response.data.errors }));
 
 export const updateCurrentUser = (userData) => {
@@ -44,7 +44,7 @@ export const updateCurrentUser = (userData) => {
 
   return axiosClient
     .put(CURRENT_USER_PATH, { user: user })
-    .then((res) => ({ error: null, data: res.data.user }))
+    .then((res) => ({ data: res.data.user }))
     .catch((err) => ({ error: err.response.data.errors }));
 };
 
