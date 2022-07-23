@@ -1,20 +1,26 @@
 import { ref, computed } from "vue";
 
-const usePagination = ({ limitPerPage, totalElements }) => {
-  const currentPage = ref(1);
+const usePagination = ({
+  limitPerPage = 2,
+  totalElements,
+  initialPage = 1
+}) => {
+  const currentPage = ref(initialPage);
 
-  const firstPage = 1;
-  const lastPage = totalElements
-    ? Math.ceil(totalElements / limitPerPage)
-    : Infinity;
+  const firstPage = computed(() => initialPage);
+  const lastPage = computed(() =>
+    totalElements.value
+      ? Math.ceil(totalElements.value / limitPerPage)
+      : Infinity
+  );
   const offset = computed(() => (currentPage.value - 1) * limitPerPage);
+  const totalPages = computed(() => lastPage.value - firstPage.value + 1);
 
   const goToNextPage = () => {
-    currentPage.value =
-      currentPage.value < lastPage ? currentPage.value + 1 : currentPage.value;
+    if (currentPage.value < lastPage.value) currentPage.value += 1;
   };
   const goToPrevPage = () => {
-    currentPage.value = currentPage.value <= 1 ? 1 : currentPage.value - 1;
+    if (currentPage.value > firstPage.value) currentPage.value -= 1;
   };
   const goToPage = (page) => {
     currentPage.value = page;
@@ -27,7 +33,8 @@ const usePagination = ({ limitPerPage, totalElements }) => {
     goToPrevPage,
     goToPage,
     firstPage,
-    lastPage
+    lastPage,
+    totalPages
   };
 };
 

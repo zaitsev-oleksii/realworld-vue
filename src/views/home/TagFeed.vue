@@ -1,5 +1,5 @@
 <template>
-  <article-feed :api="api" :filterParams="filterParams" />
+  <article-feed :api="api" :countApi="countApi" :filterParams="filterParams" />
 </template>
 
 <script>
@@ -21,6 +21,7 @@ export default {
 
     return {
       api: articlesAPI.getArticles,
+      countApi: articlesAPI.getArticlesTotalCount,
       filterParams
     };
   }

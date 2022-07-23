@@ -1,5 +1,5 @@
 <template>
-  <article-feed :api="api" />
+  <article-feed :api="api" :countApi="countApi" />
 </template>
 
 <script>
@@ -11,7 +11,10 @@ export default {
   components: { ArticleFeed },
   setup() {
     const articlesAPI = inject("articlesAPI");
-    return { api: articlesAPI.getArticlesFeed };
+    return {
+      api: articlesAPI.getArticlesFeed,
+      countApi: articlesAPI.getArticlesFeedTotalCount
+    };
   }
 };
 </script>

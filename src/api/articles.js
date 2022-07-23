@@ -40,6 +40,34 @@ export const getArticlesFeed = (options = {}) => {
     .catch((err) => ({ error: err.response.data.errors }));
 };
 
+export const getArticlesTotalCount = (options = {}) => {
+  const { limit, offset, filterParams } = options;
+  const { tag, author, favoritedBy } = filterParams ?? {};
+  const params = new URLSearchParams({
+    ...(limit && { limit: limit.toString() }),
+    ...(offset && { offset: offset.toString() }),
+    ...(tag && { tag }),
+    ...(author && { author }),
+    ...(favoritedBy && { favorited: favoritedBy })
+  });
+  return axiosClient
+    .get(ARTICLES_PATH, { params: params })
+    .then((res) => ({ data: res.data.articlesCount }))
+    .catch((err) => ({ error: err.response.data.errors }));
+};
+
+export const getArticlesFeedTotalCount = (options = {}) => {
+  const { limit, offset } = options;
+  const params = new URLSearchParams({
+    ...(limit && { limit: limit.toString() }),
+    ...(offset && { offset: offset.toString() })
+  });
+  return axiosClient
+    .get(FEED_PATH, { params: params })
+    .then((res) => ({ data: res.data.articlesCount }))
+    .catch((err) => ({ error: err.response.data.errors }));
+};
+
 export const createArticle = (articleData) => {
   const article = {
     title: articleData.title,
@@ -103,6 +131,8 @@ const articlesAPI = {
   getTags,
   getArticles,
   getArticlesFeed,
+  getArticlesTotalCount,
+  getArticlesFeedTotalCount,
   createArticle,
   getArticle,
   updateArticle,
