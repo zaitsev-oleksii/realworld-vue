@@ -62,15 +62,6 @@ export default {
       { start: startLoading, stop: stopLoading }
     ] = useLoading(true);
 
-    /*
-      Roundabout since we cannot get total articles count
-      from API directly without loading all the articles data
-      Prefetching next page articles and hiding prev/next page
-      buttons so that user can't navigate to empty page
-    */
-    // const prefetchedArticles = ref([]);
-    const buttonsVisible = ref(false);
-
     const {
       currentPage,
       offset,
@@ -106,10 +97,7 @@ export default {
     });
 
     const isFirstPage = computed(() => currentPage.value === firstPage.value);
-    const isLastPage = computed(
-      () => currentPage.value === lastPage.value
-      // || prefetchedArticles.value.length === 0
-    );
+    const isLastPage = computed(() => currentPage.value === lastPage.value);
 
     const loadArticles = async () => {
       const { error, data: articlesData } = await props.api({
@@ -132,28 +120,13 @@ export default {
       }
       articlesTotalCount.value = totalCount;
     };
-    // const loadPrefetchedArticles = async () => {
-    //   const { error, data: prefetchedArticlesData } = await props.api({
-    //     limit: ARTICLES_PER_PAGE,
-    //     offset: offset.value + ARTICLES_PER_PAGE,
-    //     filterParams: props.filterParams
-    //   });
-    //   if (error) {
-    //     return;
-    //   }
-    //   prefetchedArticles.value = prefetchedArticlesData;
-    // };
 
     watch(
       [currentPage, () => props.filterParams],
       async () => {
         startLoading("Loading articles...");
-        buttonsVisible.value = false;
         await loadArticles();
         await loadArticlesTotalCount();
-        // console.log(articlesTotalCount.value);
-        // await loadPrefetchedArticles();
-        buttonsVisible.value = true;
         stopLoading();
       },
       { immediate: true }
@@ -169,8 +142,7 @@ export default {
       totalPages,
       isFirstPage,
       isLastPage,
-      paginationButtons,
-      buttonsVisible
+      paginationButtons
     };
   }
 };
