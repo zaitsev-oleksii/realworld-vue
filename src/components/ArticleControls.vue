@@ -1,5 +1,17 @@
 <template>
-  <template v-if="!isCurrentUserArticle">
+  <template v-if="isAuthorizedToModify">
+    <router-link
+      class="btn btn-outline-secondary btn-sm"
+      :to="{ name: 'editor', params: { slug: articleSlug } }"
+    >
+      <i class="ion-edit"></i> Edit Article
+    </router-link>
+    <button class="btn btn-outline-danger btn-sm" @click="handleDeleteArticle">
+      <i class="ion-trash-a"></i> Delete Article
+    </button>
+  </template>
+
+  <template v-else>
     <follow-button
       v-if="followingAuthor !== null"
       :username="authorUsername"
@@ -16,17 +28,6 @@
       &nbsp; {{ !favorited ? "Favorite" : "Unfavorite" }} Post
     </favorite-button>
   </template>
-  <template v-if="isCurrentUserArticle">
-    <router-link
-      class="btn btn-outline-secondary btn-sm"
-      :to="{ name: 'editor', params: { slug: articleSlug } }"
-    >
-      <i class="ion-edit"></i> Edit Article
-    </router-link>
-    <button class="btn btn-outline-danger btn-sm" @click="handleDeleteArticle">
-      <i class="ion-trash-a"></i> Delete Article
-    </button>
-  </template>
 </template>
 
 <script>
@@ -38,7 +39,7 @@ export default {
   props: {
     articleSlug: String,
     authorUsername: String,
-    isCurrentUserArticle: Boolean,
+    isAuthorizedToModify: Boolean,
     favorited: Boolean,
     followingAuthor: Boolean,
     favoritesCount: Number

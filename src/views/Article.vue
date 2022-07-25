@@ -1,7 +1,7 @@
 <template>
   <loading-spinner v-if="isLoading" />
   <template v-else>
-    <div class="article-page" v-if="article">
+    <div class="article-page">
       <div class="banner">
         <div class="container">
           <h1>{{ article.title }}</h1>
@@ -15,7 +15,7 @@
             <article-controls
               :articleSlug="article.slug"
               :authorUsername="article.author.username"
-              :isCurrentUserArticle="isCurrentUserArticle"
+              :isAuthorizedToModify="isAuthorizedToModify"
               :favorited="favorited"
               :favoritesCount="favoritesCount"
               :followingAuthor="followingAuthor"
@@ -49,7 +49,7 @@
             <article-controls
               :articleSlug="article.slug"
               :authorUsername="article.author.username"
-              :isCurrentUserArticle="isCurrentUserArticle"
+              :isAuthorizedToModify="isAuthorizedToModify"
               :favorited="favorited"
               :favoritesCount="favoritesCount"
               :followingAuthor="followingAuthor"
@@ -63,10 +63,10 @@
         <div class="row">
           <div class="col-xs-12 col-md-8 offset-md-2">
             <comment-form
-              v-if="isAuthorized"
+              v-if="isAuthenticated"
               :articleSlug="article.slug"
               :userImage="currentUser.image"
-              @new-comment="(commentText) => addComment(commentText)"
+              @new-comment="(commentText) => handleAddComment(commentText)"
             />
             <template v-else>
               <span>
@@ -84,7 +84,7 @@
                 :author="comment.author"
                 :createdAt="comment.createdAt"
                 :body="comment.body"
-                @delete-comment="(commentId) => deleteComment(commentId)"
+                @delete-comment="(commentId) => handleDeleteComment(commentId)"
               />
             </template>
           </div>
@@ -107,8 +107,6 @@ import CommentForm from "../components/CommentForm.vue";
 import CommentCard from "../components/CommentCard.vue";
 
 import useLoading from "../composables/loading";
-// import useFavoriteArticle from "../composables/favorite-article";
-// import useFollowProfile from "../composables/follow-profile";
 
 export default {
   name: "ArticleView",
@@ -133,12 +131,28 @@ export default {
     const commentsAPI = inject("commentsAPI");
     const profileAPI = inject("profileAPI");
 
-    const isAuthorized = computed(() => store.getters.isAuthorized);
+    const isAuthenticated = computed(() => store.getters.isAuthenticated);
     const currentUser = computed(() => store.state.user);
     const [{ isLoading }, { start: startLoading, stop: stopLoading }] =
       useLoading(true);
 
-    const article = ref(null);
+    const article = ref({
+      slug: "",
+      title: "",
+      description: "",
+      body: "",
+      tags: [],
+      createdAt: "",
+      favorited: null,
+      favoritesCount: null,
+      author: {
+        username: "",
+        bio: "",
+        image: "",
+        following: null
+      }
+    });
+
     const loadArticle = async () => {
       const { error, data: articleData } = await articlesAPI.getArticle(
         props.slug
@@ -147,10 +161,11 @@ export default {
         router.push({ name: "home" });
         return;
       }
+
       article.value = articleData;
     };
 
-    const isCurrentUserArticle = computed(
+    const isAuthorizedToModify = computed(
       () => currentUser.value.username === article.value.author.username
     );
     const handleDeleteArticle = async () => {
@@ -161,7 +176,7 @@ export default {
     const favorited = computed(() => article.value.favorited);
     const favoritesCount = computed(() => article.value.favoritesCount);
     const handleFavoriteArticle = async () => {
-      if (!isAuthorized.value) {
+      if (!isAuthenticated.value) {
         router.push({ name: "login" });
         return;
       }
@@ -177,7 +192,7 @@ export default {
 
     const followingAuthor = computed(() => article.value.author.following);
     const handleFollowAuthor = async () => {
-      if (!isAuthorized.value) {
+      if (!isAuthenticated.value) {
         router.push({ name: "login" });
         return;
       }
@@ -200,7 +215,7 @@ export default {
       }
       comments.value = commentsData;
     };
-    const addComment = async (commentText) => {
+    const handleAddComment = async (commentText) => {
       const { error, data: newComment } = await commentsAPI.createComment({
         slug: props.slug,
         commentText: commentText
@@ -211,12 +226,19 @@ export default {
 
       comments.value.unshift(newComment);
     };
-    const deleteComment = async (commentId) => {
-      await commentsAPI.deleteComment({
+    const handleDeleteComment = async (commentId) => {
+      const { error } = await commentsAPI.deleteComment({
         slug: props.slug,
         id: commentId
       });
-      loadComments();
+
+      if (error) {
+        return;
+      }
+
+      comments.value = comments.value.filter(
+        (comment) => comment.id !== commentId
+      );
     };
     const sortCriteria = (curr, next) =>
       new Date(next.createdAt) - new Date(curr.createdAt);
@@ -239,7 +261,7 @@ export default {
       article,
       isLoading,
       currentUser,
-      isCurrentUserArticle,
+      isAuthorizedToModify,
       handleDeleteArticle,
       followingAuthor,
       handleFollowAuthor,
@@ -247,9 +269,9 @@ export default {
       handleFavoriteArticle,
       favoritesCount,
       displayedComments,
-      addComment,
-      deleteComment,
-      isAuthorized
+      handleAddComment,
+      handleDeleteComment,
+      isAuthenticated
     };
   }
 };

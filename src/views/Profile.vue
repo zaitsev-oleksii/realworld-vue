@@ -83,7 +83,7 @@ export default {
     const router = useRouter();
     const profileAPI = inject("profileAPI");
 
-    const isAuthorized = computed(() => store.getters.isAuthorized);
+    const isAuthenticated = computed(() => store.getters.isAuthenticated);
     const [{ isLoading }, { start: startLoading, stop: stopLoading }] =
       useLoading(true);
 
@@ -105,7 +105,7 @@ export default {
 
     const following = computed(() => profile.value.following);
     const handleFollow = async () => {
-      if (!isAuthorized.value) {
+      if (!isAuthenticated.value) {
         router.push({ name: "login" });
       }
       const { error, data: profileData } = await (!following.value
@@ -133,7 +133,7 @@ export default {
       isLoading,
       following,
       handleFollow,
-      isAuthorized: computed(() => store.getters.isAuthorized)
+      isAuthenticated: computed(() => store.getters.isAuthenticated)
     };
   }
 };

@@ -1,7 +1,7 @@
 <template>
   <loading-spinner v-if="isLoading" />
   <template v-else>
-    <div class="settings-page" v-if="isAuthorized">
+    <div class="settings-page" v-if="isAuthenticated">
       <div class="container page">
         <div class="row">
           <div class="col-md-6 offset-md-3 col-xs-12">
@@ -88,7 +88,7 @@ export default {
     const store = useStore();
     const router = useRouter();
 
-    const isAuthorized = computed(() => store.getters.isAuthorized);
+    const isAuthenticated = computed(() => store.getters.isAuthenticated);
 
     const [{ isLoading }, { start: startLoading }] = useLoading(false);
 
@@ -115,7 +115,7 @@ export default {
     };
 
     return {
-      isAuthorized,
+      isAuthenticated,
       isLoading,
       userData,
       handleSubmitUpdates,

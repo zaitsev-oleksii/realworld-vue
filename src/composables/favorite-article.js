@@ -4,8 +4,8 @@ const useFavoriteArticle = ({
   slug,
   initFavorited = null,
   initFavoritesCount = null,
-  isAuthorized = false,
-  onUnauthorized = () => {}
+  isAuthenticated = false,
+  onUnauthenticated = () => {}
 }) => {
   const articlesAPI = inject("articlesAPI");
 
@@ -26,8 +26,8 @@ const useFavoriteArticle = ({
       return;
     }
 
-    if (!unref(isAuthorized)) {
-      onUnauthorized();
+    if (!unref(isAuthenticated)) {
+      onUnauthenticated();
       return;
     }
 

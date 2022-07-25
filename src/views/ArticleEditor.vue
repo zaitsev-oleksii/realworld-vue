@@ -128,7 +128,7 @@ export default {
             slug: props.slug,
             articleData: articleData
           })
-        : articlesAPI.createArticle(newArticleData));
+        : articlesAPI.createArticle(articleData));
 
       if (error) {
         return;
@@ -163,9 +163,8 @@ export default {
         formData.description = articleData.description;
         formData.body = articleData.body;
         tags.value = articleData.tagList;
-        console.log(isLoading.value);
+
         stopLoading();
-        console.log(isLoading.value);
       },
       { immediate: true }
     );

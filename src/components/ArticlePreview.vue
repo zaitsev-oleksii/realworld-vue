@@ -68,8 +68,8 @@ export default {
       slug: props.slug,
       initFavorited: props.initFavorited,
       initFavoritesCount: props.initFavoritesCount,
-      isAuthorized: store.getters.isAuthorized,
-      onUnauthorized: () => {
+      isAuthenticated: store.getters.isAuthenticated,
+      onUnauthenticated: () => {
         router.push({ name: "login" });
       }
     });

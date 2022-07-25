@@ -12,7 +12,7 @@
         <div class="col-md-9">
           <div class="feed-toggle">
             <ul class="nav nav-pills outline-active">
-              <li class="nav-item" v-if="isAuthorized">
+              <li class="nav-item" v-if="isAuthenticated">
                 <router-link
                   :to="{ name: 'personal-feed' }"
                   class="nav-link"
@@ -92,7 +92,7 @@ export default {
 
     return {
       popularTags,
-      isAuthorized: computed(() => store.getters.isAuthorized),
+      isAuthenticated: computed(() => store.getters.isAuthenticated),
       filterByTag,
       TAG_LIST_THEMES
     };

@@ -22,7 +22,7 @@ export const store = createStore({
     };
   },
   getters: {
-    isAuthorized(state) {
+    isAuthenticated(state) {
       return state.user.token ? true : false;
     }
   },

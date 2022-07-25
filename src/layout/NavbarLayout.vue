@@ -11,7 +11,7 @@
             >Home</router-link
           >
         </li>
-        <template v-if="isAuthorized">
+        <template v-if="isAuthenticated">
           <li class="nav-item">
             <router-link :to="{ name: 'editor' }" class="nav-link">
               <i class="ion-compose"></i>&nbsp;New Article
@@ -31,7 +31,7 @@
             </router-link>
           </li>
         </template>
-        <template v-if="!isAuthorized">
+        <template v-if="!isAuthenticated">
           <li class="nav-item">
             <router-link :to="{ name: 'login' }" class="nav-link"
               >Sign in</router-link
@@ -58,7 +58,7 @@ export default {
     const store = useStore();
 
     return {
-      isAuthorized: computed(() => store.getters.isAuthorized),
+      isAuthenticated: computed(() => store.getters.isAuthenticated),
       username: computed(() => store.state.user.username)
     };
   }
