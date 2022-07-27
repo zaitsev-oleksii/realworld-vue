@@ -38,6 +38,8 @@
 <script>
 import { ref, computed, watch } from "vue";
 
+import { useRouter, useRoute } from "vue-router";
+
 import ArticleList from "./ArticleList.vue";
 
 import usePagination from "../composables/pagination";
@@ -54,6 +56,9 @@ export default {
     filterParams: Object
   },
   setup(props) {
+    const router = useRouter();
+    const route = useRoute();
+
     const articles = ref([]);
     const articlesTotalCount = ref(undefined);
 
@@ -62,19 +67,20 @@ export default {
       { start: startLoading, stop: stopLoading }
     ] = useLoading(true);
 
-    const {
-      currentPage,
-      offset,
-      goToPrevPage,
-      goToNextPage,
-      goToPage,
-      firstPage,
-      lastPage,
-      totalPages
-    } = usePagination({
-      limitPerPage: ARTICLES_PER_PAGE,
-      totalElements: articlesTotalCount
-    });
+    const { currentPage, offset, goToPage, firstPage, lastPage, totalPages } =
+      usePagination({
+        limitPerPage: ARTICLES_PER_PAGE,
+        totalElements: articlesTotalCount
+      });
+
+    const goToPrevPage = () => {
+      const prevPage = currentPage.value - 1;
+      router.push({ query: { page: prevPage } });
+    };
+    const goToNextPage = () => {
+      const nextPage = currentPage.value + 1;
+      router.push({ query: { page: nextPage } });
+    };
 
     const paginationButtons = computed(() => {
       const range = (start, end) => {
@@ -92,7 +98,9 @@ export default {
       const paginationWindow = range(windowStart, windowEnd);
       return paginationWindow.map((page) => ({
         page,
-        handler: () => goToPage(page)
+        handler: () => {
+          router.push({ query: { page: page } });
+        }
       }));
     });
 
@@ -122,8 +130,11 @@ export default {
     };
 
     watch(
-      [currentPage, () => props.filterParams],
+      [() => route.query, () => props.filterParams],
       async () => {
+        if (route.query.page) {
+          goToPage(parseInt(route.query.page));
+        }
         startLoading("Loading articles...");
         await loadArticles();
         await loadArticlesTotalCount();
