@@ -1,14 +1,14 @@
 import { axiosClient } from "./axios-client";
+import { errorCatcher } from "./error-catcher";
 
 const PROFILE_PATH = "/profiles/:username";
 const FOLLOW_PROFILE_PATH = "/profiles/:username/follow";
 
 export const getProfile = (username) => {
   const url = PROFILE_PATH.replace(":username", encodeURIComponent(username));
-  return axiosClient
-    .get(url)
-    .then((res) => ({ data: res.data.profile }))
-    .catch((err) => ({ error: err.response.data.errors }));
+  return errorCatcher(
+    axiosClient.get(url).then((res) => ({ data: res.data.profile }))
+  );
 };
 
 export const follow = (username) => {
@@ -16,10 +16,9 @@ export const follow = (username) => {
     ":username",
     encodeURIComponent(username)
   );
-  return axiosClient
-    .post(url)
-    .then((res) => ({ data: res.data.profile }))
-    .catch((err) => ({ error: err.response.data.errors }));
+  return errorCatcher(
+    axiosClient.post(url).then((res) => ({ data: res.data.profile }))
+  );
 };
 
 export const unfollow = (username) => {
@@ -27,10 +26,9 @@ export const unfollow = (username) => {
     ":username",
     encodeURIComponent(username)
   );
-  return axiosClient
-    .delete(url)
-    .then((res) => ({ data: res.data.profile }))
-    .catch((err) => ({ error: err.response.data.errors }));
+  return errorCatcher(
+    axiosClient.delete(url).then((res) => ({ data: res.data.profile }))
+  );
 };
 
 const profileAPI = {

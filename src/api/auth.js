@@ -1,4 +1,5 @@
 import { axiosClient } from "./axios-client";
+import { errorCatcher } from "./error-catcher";
 
 const LOGIN_PATH = "/users/login";
 const REGISTER_PATH = "/users";
@@ -9,10 +10,11 @@ export const login = (credentials) => {
     email: credentials.email,
     password: credentials.password
   };
-  return axiosClient
-    .post(LOGIN_PATH, { user: user })
-    .then((res) => ({ data: res.data.user }))
-    .catch((err) => ({ error: err.response.data.errors }));
+  return errorCatcher(
+    axiosClient
+      .post(LOGIN_PATH, { user: user })
+      .then((res) => ({ data: res.data.user }))
+  );
 };
 
 export const register = (registerData) => {
@@ -21,17 +23,17 @@ export const register = (registerData) => {
     email: registerData.email || "",
     password: registerData.password || ""
   };
-  return axiosClient
-    .post(REGISTER_PATH, { user: user })
-    .then((res) => ({ data: res.data.user }))
-    .catch((err) => ({ error: err.response.data.errors }));
+  return errorCatcher(
+    axiosClient
+      .post(REGISTER_PATH, { user: user })
+      .then((res) => ({ data: res.data.user }))
+  );
 };
 
 export const getCurrentUser = () =>
-  axiosClient
-    .get(CURRENT_USER_PATH)
-    .then((res) => ({ data: res.data.user }))
-    .catch((err) => ({ error: err.response.data.errors }));
+  errorCatcher(
+    axiosClient.get(CURRENT_USER_PATH).then((res) => ({ data: res.data.user }))
+  );
 
 export const updateCurrentUser = (userData) => {
   const user = {
@@ -42,10 +44,11 @@ export const updateCurrentUser = (userData) => {
     ...(userData.password && { password: userData.password })
   };
 
-  return axiosClient
-    .put(CURRENT_USER_PATH, { user: user })
-    .then((res) => ({ data: res.data.user }))
-    .catch((err) => ({ error: err.response.data.errors }));
+  return errorCatcher(
+    axiosClient
+      .put(CURRENT_USER_PATH, { user: user })
+      .then((res) => ({ data: res.data.user }))
+  );
 };
 
 const authAPI = {

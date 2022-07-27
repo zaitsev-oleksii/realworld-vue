@@ -1,4 +1,5 @@
 import { axiosClient } from "./axios-client";
+import { errorCatcher } from "./error-catcher";
 
 const TAGS_PATH = "/tags";
 const ARTICLES_PATH = "/articles";
@@ -7,10 +8,9 @@ const ARTICLE_PATH = "/articles/:slug";
 const FAVORITE_ARTICLE_PATH = "/articles/:slug/favorite";
 
 export const getTags = () =>
-  axiosClient
-    .get(TAGS_PATH)
-    .then((res) => ({ data: res.data.tags }))
-    .catch((err) => ({ error: err.response.data.errors }));
+  errorCatcher(
+    axiosClient.get(TAGS_PATH).then((res) => ({ data: res.data.tags }))
+  );
 
 export const getArticles = (options = {}) => {
   const { limit, offset, filterParams } = options;
@@ -22,10 +22,11 @@ export const getArticles = (options = {}) => {
     ...(author && { author }),
     ...(favoritedBy && { favorited: favoritedBy })
   });
-  return axiosClient
-    .get(ARTICLES_PATH, { params: params })
-    .then((res) => ({ data: res.data.articles }))
-    .catch((err) => ({ error: err.response.data.errors }));
+  return errorCatcher(
+    axiosClient
+      .get(ARTICLES_PATH, { params: params })
+      .then((res) => ({ data: res.data.articles }))
+  );
 };
 
 export const getArticlesFeed = (options = {}) => {
@@ -34,10 +35,11 @@ export const getArticlesFeed = (options = {}) => {
     ...(limit && { limit: limit.toString() }),
     ...(offset && { offset: offset.toString() })
   });
-  return axiosClient
-    .get(FEED_PATH, { params: params })
-    .then((res) => ({ data: res.data.articles }))
-    .catch((err) => ({ error: err.response.data.errors }));
+  return errorCatcher(
+    axiosClient
+      .get(FEED_PATH, { params: params })
+      .then((res) => ({ data: res.data.articles }))
+  );
 };
 
 export const getArticlesTotalCount = (options = {}) => {
@@ -50,10 +52,11 @@ export const getArticlesTotalCount = (options = {}) => {
     ...(author && { author }),
     ...(favoritedBy && { favorited: favoritedBy })
   });
-  return axiosClient
-    .get(ARTICLES_PATH, { params: params })
-    .then((res) => ({ data: res.data.articlesCount }))
-    .catch((err) => ({ error: err.response.data.errors }));
+  return errorCatcher(
+    axiosClient
+      .get(ARTICLES_PATH, { params: params })
+      .then((res) => ({ data: res.data.articlesCount }))
+  );
 };
 
 export const getArticlesFeedTotalCount = (options = {}) => {
@@ -62,10 +65,11 @@ export const getArticlesFeedTotalCount = (options = {}) => {
     ...(limit && { limit: limit.toString() }),
     ...(offset && { offset: offset.toString() })
   });
-  return axiosClient
-    .get(FEED_PATH, { params: params })
-    .then((res) => ({ data: res.data.articlesCount }))
-    .catch((err) => ({ error: err.response.data.errors }));
+  return errorCatcher(
+    axiosClient
+      .get(FEED_PATH, { params: params })
+      .then((res) => ({ data: res.data.articlesCount }))
+  );
 };
 
 export const createArticle = (articleData) => {
@@ -75,18 +79,18 @@ export const createArticle = (articleData) => {
     body: articleData.body,
     tagList: articleData.tagList ?? []
   };
-  return axiosClient
-    .post(ARTICLES_PATH, { article: article })
-    .then((res) => ({ data: res.data.article }))
-    .catch((err) => ({ error: err.response.data.errors }));
+  return errorCatcher(
+    axiosClient
+      .post(ARTICLES_PATH, { article: article })
+      .then((res) => ({ data: res.data.article }))
+  );
 };
 
 export const getArticle = (slug) => {
   const url = ARTICLE_PATH.replace(":slug", encodeURIComponent(slug));
-  return axiosClient
-    .get(url)
-    .then((res) => ({ data: res.data.article }))
-    .catch((err) => ({ error: err.response.data.errors }));
+  return errorCatcher(
+    axiosClient.get(url).then((res) => ({ data: res.data.article }))
+  );
 };
 
 export const updateArticle = ({ slug, articleData }) => {
@@ -97,34 +101,32 @@ export const updateArticle = ({ slug, articleData }) => {
     body: articleData.body,
     tagList: articleData.tagList || []
   };
-  return axiosClient
-    .put(url, { article: article })
-    .then((res) => ({ data: res.data.article }))
-    .catch((err) => ({ error: err.response.data.errors }));
+  return errorCatcher(
+    axiosClient
+      .put(url, { article: article })
+      .then((res) => ({ data: res.data.article }))
+  );
 };
 
 export const deleteArticle = (slug) => {
   const url = ARTICLE_PATH.replace(":slug", encodeURIComponent(slug));
-  return axiosClient
-    .delete(url)
-    .then((res) => ({ data: res.data }))
-    .catch((err) => ({ error: err.response.data.errors }));
+  return errorCatcher(
+    axiosClient.delete(url).then((res) => ({ data: res.data }))
+  );
 };
 
 const favorite = async (slug) => {
   const url = FAVORITE_ARTICLE_PATH.replace(":slug", encodeURIComponent(slug));
-  return axiosClient
-    .post(url)
-    .then((res) => ({ data: res.data.article }))
-    .catch((err) => ({ error: err.response.data.errors }));
+  return errorCatcher(
+    axiosClient.post(url).then((res) => ({ data: res.data.article }))
+  );
 };
 
 const unfavorite = async (slug) => {
   const url = FAVORITE_ARTICLE_PATH.replace(":slug", encodeURIComponent(slug));
-  return axiosClient
-    .delete(url)
-    .then((res) => ({ data: res.data.article }))
-    .catch((err) => ({ error: err.response.data.errors }));
+  return errorCatcher(
+    axiosClient.delete(url).then((res) => ({ data: res.data.article }))
+  );
 };
 
 const articlesAPI = {
