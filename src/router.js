@@ -15,6 +15,10 @@ const FavoritedArticles = () => import("./views/profile/FavoritedArticles.vue");
 
 const routes = [
   {
+    path: "/:pathMatch(.*)*",
+    redirect: { name: "home" }
+  },
+  {
     path: "/",
     component: HomeView,
     children: [
@@ -59,19 +63,19 @@ const routes = [
     props: true
   },
   {
-    path: "/profile/:username",
+    path: "/@:username",
     component: ProfileView,
     props: true,
     children: [
       {
         name: "profile",
-        path: "/:username/",
+        path: "",
         props: true,
         component: CreatedArticles
       },
       {
         name: "favorited-articles",
-        path: "/:username/favorited",
+        path: "favorited",
         props: true,
         component: FavoritedArticles
       }

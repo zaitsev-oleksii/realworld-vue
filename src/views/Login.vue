@@ -49,7 +49,7 @@
 <script>
 import { computed, reactive } from "vue";
 import { useStore } from "vuex";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 
 import { LOGIN } from "../store/action-types";
 
@@ -64,6 +64,7 @@ export default {
   setup() {
     const store = useStore();
     const router = useRouter();
+    const route = useRoute();
 
     const formData = reactive({
       email: "",
@@ -85,7 +86,7 @@ export default {
       if (errors.value) {
         stopLoading();
       } else {
-        router.push({ path: "/" });
+        router.push({ path: route.query.redirect || "/" });
       }
     };
 

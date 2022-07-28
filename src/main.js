@@ -20,7 +20,10 @@ app.provide("commentsAPI", api.commentsAPI);
 router.beforeEach(async (to) => {
   await store.dispatch(VERIFY_AUTH);
   if (to.meta.requiresAuth && !store.getters.isAuthenticated) {
-    router.push({ name: "login" });
+    return {
+      name: "login",
+      query: { redirect: to.fullPath }
+    };
   }
 });
 
