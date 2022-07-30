@@ -16,14 +16,15 @@ export const store = createStore({
         username: "",
         bio: "",
         image: "",
-        token: ""
+        token: "",
+        authenticated: false
       },
       errors: null
     };
   },
   getters: {
     isAuthenticated(state) {
-      return state.user.token ? true : false;
+      return state.user.authenticated ? true : false;
     }
   },
   mutations: {
@@ -36,6 +37,7 @@ export const store = createStore({
       state.user.token = token;
       state.user.image = image;
 
+      state.user.authenticated = true;
       tokenService.saveToken(state.user.token);
     },
     [CLEAR_USER](state) {
